@@ -1,0 +1,82 @@
+/* InferBridge-branded Starlight overrides.
+ *
+ * Goal: make /docs look like a cousin of the landing page — same accent,
+ * same dark palette, same font stack — without forking the whole
+ * Starlight design system. We only override the CSS custom properties
+ * that Starlight exposes on :root.
+ *
+ * Reference: https://starlight.astro.build/guides/css-and-tailwind/#theming
+ * Token parity: see src/styles/global.css in this repo.
+ */
+
+:root {
+  /* ---- Brand accent ---- */
+  --sl-color-accent-low: #1a1d4a;
+  --sl-color-accent: #5b6af0;
+  --sl-color-accent-high: #7785f2;
+
+  /* ---- Typography ---- */
+  --sl-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  --sl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular,
+    "SF Mono", Consolas, monospace;
+}
+
+:root[data-theme="dark"] {
+  /* Match landing-page grayscale — not Starlight's defaults. */
+  --sl-color-white: #f4f5f8;
+  --sl-color-gray-1: #e8eaf0;
+  --sl-color-gray-2: #9ba1af;
+  --sl-color-gray-3: #7a8090;
+  --sl-color-gray-4: #5a5f6e;
+  --sl-color-gray-5: #2a2e38;
+  --sl-color-gray-6: #1c1f26;
+  --sl-color-gray-7: #111318;
+  --sl-color-black: #0c0d0f;
+
+  --sl-color-bg: #0c0d0f;
+  --sl-color-bg-nav: #0c0d0f;
+  --sl-color-bg-sidebar: #0c0d0f;
+  --sl-color-bg-inline-code: #1c1f26;
+
+  --sl-color-text: #e8eaf0;
+  --sl-color-text-accent: #7785f2;
+  --sl-color-text-invert: #0c0d0f;
+  --sl-color-hairline-light: #2a2e38;
+  --sl-color-hairline: #2a2e38;
+  --sl-color-hairline-shade: #1c1f26;
+}
+
+/* Force dark mode — landing page is dark-only, keep docs consistent. */
+html[data-theme="light"] {
+  color-scheme: dark;
+}
+
+/* Inline code: same pill treatment as landing page. */
+.sl-markdown-content code:not(pre code) {
+  background-color: var(--sl-color-bg-inline-code);
+  color: #7785f2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+/* Tables: match landing-page Providers table. */
+.sl-markdown-content table {
+  border-collapse: collapse;
+}
+.sl-markdown-content table th,
+.sl-markdown-content table td {
+  border-color: var(--sl-color-hairline);
+}
+.sl-markdown-content table tbody tr:hover {
+  background-color: #111318;
+}
+
+/* "Back to home" link in site title slot so people can hop back to
+ * landing. Starlight's title becomes a <a href="/"> by default because
+ * of `site:` — but we also want the brand name to nudge users toward
+ * the marketing page, not just `/docs`. */
+.site-title a {
+  color: var(--sl-color-text);
+}
