@@ -44,7 +44,7 @@ import TextBlock from "./TextBlock.astro";
     padding: 6px 14px;
     border-radius: 999px;
     background-color: var(--accent-dim);
-    color: var(--accent);
+    color: var(--accent-text);
     font-family: var(--font-mono);
     font-size: var(--fs-caption);
     font-weight: 500;
@@ -88,8 +88,11 @@ import TextBlock from "./TextBlock.astro";
     color: var(--gray-50);
     padding: 12px 28px;
     border-radius: 8px;
-    font-weight: 500;
-    font-size: var(--fs-body);
+    /* 19px + weight 700 → qualifies as WCAG "large text" (≥14pt bold),
+     * which lowers the AA threshold to 3:1. gray-50 on accent is 4.04:1.
+     * Do NOT drop the weight below 700 or the font-size below 18.67px. */
+    font-weight: 700;
+    font-size: 1.1875rem;
     transition: background-color var(--transition);
   }
 

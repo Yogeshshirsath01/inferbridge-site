@@ -6,8 +6,15 @@
  */
 
 :root {
-  /* ---- Color — accent (electric indigo) ---- */
+  /* ---- Color — accent (electric indigo) ----
+   * --accent is the brand color, used for decorative chrome (focus
+   * outlines, selection bg, dots, button backgrounds, active-tab rules).
+   * --accent-text is a lifted indigo used only where accent is the
+   * foreground on dark surfaces — it passes WCAG AA (4.5:1) against
+   * every dark token (gray-950 5.95:1, gray-900 5.68:1, gray-800 5.04:1,
+   * accent-dim 4.87:1). Do not swap the two. */
   --accent: #5b6af0;
+  --accent-text: #7785f2;
   --accent-muted: #2e3580;
   --accent-dim: #1a1d4a;
 
@@ -118,7 +125,7 @@ p {
 }
 
 a {
-  color: var(--accent);
+  color: var(--accent-text);
   text-decoration: none;
   transition: color var(--transition), text-decoration var(--transition);
 }

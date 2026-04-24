@@ -89,8 +89,16 @@ import TextBlock from "./TextBlock.astro";
     border-color: var(--accent-muted);
   }
 
+  /* Muted via subtler surface + hidden border, NOT `opacity`. Opacity
+   * composites text colors with the tier bg and drops the effective
+   * contrast below WCAG AA (gray-300 × 0.65 on gray-800 → 3.43:1). */
   .tier-muted {
-    opacity: 0.65;
+    background-color: var(--gray-900);
+    border-color: var(--gray-800);
+  }
+
+  .tier-muted h3 {
+    color: var(--gray-300);
   }
 
   .tier-badge {
@@ -103,7 +111,7 @@ import TextBlock from "./TextBlock.astro";
   }
 
   .tier-badge-live {
-    color: var(--accent);
+    color: var(--accent-text);
   }
 
   .tier h3 {
@@ -136,8 +144,10 @@ import TextBlock from "./TextBlock.astro";
     color: var(--gray-50);
     padding: 10px 20px;
     border-radius: 8px;
-    font-weight: 500;
-    font-size: var(--fs-body-sm);
+    /* 19px + 700 → AA Large (3:1); gray-50 on accent is 4.04:1. See
+     * Hero .cta-primary for the same constraint. */
+    font-weight: 700;
+    font-size: 1.1875rem;
     text-align: center;
     transition: background-color var(--transition);
   }
