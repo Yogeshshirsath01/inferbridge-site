@@ -1,0 +1,167 @@
+---
+/**
+ * Pricing — design doc §8 anti-pattern #2 + copy doc §7.
+ * Free tier full visual weight; Pro/Business at opacity 0.65 with
+ * "Coming soon" badge instead of CTA.
+ */
+import Container from "./Container.astro";
+import Section from "./Section.astro";
+import TextBlock from "./TextBlock.astro";
+---
+
+<Section background="raised">
+  <Container>
+    <TextBlock align="center">
+      <h2>Honest pricing. No markup. Ever.</h2>
+      <p class="intro">
+        You pay your providers directly through your own BYOK keys.
+        InferBridge never marks up tokens.
+      </p>
+    </TextBlock>
+
+    <div class="tiers">
+      <article class="tier tier-primary">
+        <p class="tier-badge tier-badge-live">Available now</p>
+        <h3>Free</h3>
+        <p class="price"><span class="amount">&#x20B9;0</span> / month</p>
+        <p class="desc">
+          Unlimited BYOK usage. 30-day log retention. All providers, all
+          routing modes, all observability.
+        </p>
+        <a class="tier-cta" href="#waitlist">Get your API key</a>
+      </article>
+
+      <article class="tier tier-muted">
+        <p class="tier-badge">Coming soon</p>
+        <h3>Pro</h3>
+        <p class="price"><span class="amount">&#x20B9;1,499</span> / month</p>
+        <p class="desc">
+          Unlimited log retention. Priority support. Custom routing
+          rules. Team seats.
+        </p>
+        <span class="tier-cta disabled" aria-disabled="true">Not available yet</span>
+      </article>
+
+      <article class="tier tier-muted">
+        <p class="tier-badge">Coming soon</p>
+        <h3>Business</h3>
+        <p class="price"><span class="amount">&#x20B9;9,999</span> / month</p>
+        <p class="desc">
+          SLA. Dedicated support. Custom residency policies.
+          GST-compliant invoices.
+        </p>
+        <span class="tier-cta disabled" aria-disabled="true">Not available yet</span>
+      </article>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  h2 {
+    margin-bottom: 12px;
+  }
+
+  .intro {
+    color: var(--gray-300);
+    font-size: var(--fs-body);
+    max-width: 600px;
+    margin-inline: auto;
+    margin-bottom: 56px;
+  }
+
+  .tiers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .tier {
+    background-color: var(--gray-800);
+    border: 1px solid var(--gray-700);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .tier-primary {
+    border-color: var(--accent-muted);
+  }
+
+  .tier-muted {
+    opacity: 0.65;
+  }
+
+  .tier-badge {
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    font-weight: 500;
+    color: var(--gray-300);
+    letter-spacing: var(--ls-caption);
+    text-transform: uppercase;
+  }
+
+  .tier-badge-live {
+    color: var(--accent);
+  }
+
+  .tier h3 {
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  .price {
+    color: var(--gray-300);
+    font-size: var(--fs-body-sm);
+  }
+
+  .amount {
+    color: var(--gray-50);
+    font-weight: 600;
+    font-size: 1.75rem;
+    margin-right: 6px;
+  }
+
+  .desc {
+    color: var(--gray-300);
+    font-size: var(--fs-body-sm);
+    line-height: var(--lh-body-sm);
+    flex-grow: 1;
+  }
+
+  .tier-cta {
+    display: inline-block;
+    background-color: var(--accent);
+    color: var(--gray-50);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: var(--fs-body-sm);
+    text-align: center;
+    transition: background-color var(--transition);
+  }
+
+  .tier-cta:hover {
+    background-color: #6e7bf5;
+    text-decoration: none;
+  }
+
+  .tier-cta.disabled {
+    background-color: transparent;
+    border: 1px solid var(--gray-700);
+    color: var(--gray-300);
+    cursor: not-allowed;
+  }
+
+  .tier-cta.disabled:hover {
+    background-color: transparent;
+    text-decoration: none;
+  }
+
+  @media (max-width: 768px) {
+    .tiers {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

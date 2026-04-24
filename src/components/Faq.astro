@@ -1,0 +1,153 @@
+---
+/**
+ * FAQ — native <details>/<summary>, CSS-only styling.
+ * Design doc §6 interaction rules.
+ */
+import Container from "./Container.astro";
+import Section from "./Section.astro";
+import TextBlock from "./TextBlock.astro";
+---
+
+<Section>
+  <Container>
+    <TextBlock align="center">
+      <h2>Questions developers ask.</h2>
+    </TextBlock>
+
+    <div class="faq">
+      <details>
+        <summary>Does InferBridge store my prompts?</summary>
+        <p>
+          No. We log metadata only &mdash; tokens, latency, cost,
+          provider, request ID. Prompt and completion content are never
+          written to logs. There&rsquo;s a dedicated test in the codebase
+          that fails if anyone tries to change this.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens if InferBridge goes down?</summary>
+        <p>
+          Revert the two lines. Your SDK talks directly to OpenAI again
+          in seconds. No data migration. No lock-in.
+        </p>
+      </details>
+
+      <details>
+        <summary>How is this different from OpenRouter or Portkey?</summary>
+        <p>
+          BYOK by default &mdash; you pay providers directly, we take no
+          cut. Indian providers (Sarvam, self-hosted) are first-class,
+          not an afterthought. And we&rsquo;re built for developers who
+          want simple, debuggable routing, not an enterprise policy engine.
+        </p>
+      </details>
+
+      <details>
+        <summary>What about tool calling, vision, and embeddings?</summary>
+        <p>
+          Streaming tool use and vision aren&rsquo;t hardened yet &mdash;
+          use the provider SDK directly for those. Embeddings aren&rsquo;t
+          exposed through InferBridge at all in v1. Text chat completions,
+          streaming, caching, and fallback are production-ready.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Provider API keys are Fernet-encrypted at rest, decrypted only
+          in-memory at request time. We never log content. You can delete
+          any registered key from <code>/v1/keys</code> at any time.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I self-host InferBridge?</summary>
+        <p>
+          Not publicly yet. Open-source release is planned for month 2.
+          Email
+          <a href="mailto:yogesh@inferbridge.dev">yogesh@inferbridge.dev</a>
+          if you want early access or need an on-prem deployment.
+        </p>
+      </details>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  h2 {
+    margin-bottom: 48px;
+  }
+
+  .faq {
+    max-width: 720px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  details {
+    border-block-end: 1px solid var(--gray-700);
+  }
+
+  details:first-child {
+    border-block-start: 1px solid var(--gray-700);
+  }
+
+  summary {
+    padding: 20px 16px 20px 8px;
+    cursor: pointer;
+    color: var(--gray-50);
+    font-weight: 500;
+    font-size: var(--fs-body);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: color var(--transition);
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::before {
+    content: "›";
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    line-height: 1;
+    transition: transform var(--transition);
+  }
+
+  details[open] > summary::before {
+    transform: rotate(90deg);
+  }
+
+  summary:hover {
+    color: var(--accent);
+  }
+
+  details p {
+    color: var(--gray-300);
+    font-size: var(--fs-body-sm);
+    line-height: var(--lh-body-sm);
+    padding: 0 16px 20px 38px;
+    max-width: 640px;
+  }
+
+  details code {
+    background-color: var(--gray-800);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent);
+    font-size: 0.85em;
+  }
+
+  details a {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+</style>

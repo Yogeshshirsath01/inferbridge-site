@@ -1,0 +1,131 @@
+---
+/**
+ * Supported providers table — design doc §6 + copy doc §6.
+ * Row hover: transparent → --gray-900 at 150ms ease.
+ */
+import Container from "./Container.astro";
+import Section from "./Section.astro";
+import TextBlock from "./TextBlock.astro";
+---
+
+<Section>
+  <Container>
+    <TextBlock align="center">
+      <h2>Five providers. One API.</h2>
+    </TextBlock>
+
+    <div class="wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Provider</th>
+            <th scope="col">Residency</th>
+            <th scope="col">Example models</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>OpenAI</td>
+            <td>Global</td>
+            <td><code>gpt-4o-mini</code>, <code>gpt-4o</code></td>
+          </tr>
+          <tr>
+            <td>Anthropic</td>
+            <td>Global</td>
+            <td>
+              <code>claude-haiku-4-5</code>, <code>claude-opus-4-7</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Together AI</td>
+            <td>Global</td>
+            <td><code>Llama-3.3-70B-Instruct-Turbo</code></td>
+          </tr>
+          <tr>
+            <td>Sarvam</td>
+            <td>India</td>
+            <td><code>sarvam-m</code></td>
+          </tr>
+          <tr>
+            <td>Self-hosted</td>
+            <td>User-declared</td>
+            <td>Any OpenAI-compatible endpoint</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <TextBlock align="center">
+      <p class="caption">Register any combination. Route across all of them.</p>
+    </TextBlock>
+  </Container>
+</Section>
+
+<style>
+  h2 {
+    margin-bottom: 48px;
+  }
+
+  .wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-inline: auto;
+    max-width: 900px;
+  }
+
+  table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-body);
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--gray-700);
+  }
+
+  th {
+    font-weight: 500;
+    color: var(--gray-50);
+    font-size: var(--fs-body-sm);
+    text-transform: none;
+    letter-spacing: 0;
+    border-bottom: 1px solid var(--gray-700);
+  }
+
+  td {
+    color: var(--gray-300);
+  }
+
+  tbody tr {
+    background-color: transparent;
+    transition: background-color var(--transition);
+  }
+
+  tbody tr:hover {
+    background-color: var(--gray-900);
+  }
+
+  code {
+    font-size: 0.875em;
+    color: var(--gray-100);
+  }
+
+  .caption {
+    color: var(--gray-300);
+    font-size: var(--fs-caption);
+    text-align: center;
+    margin-block-start: 20px;
+    letter-spacing: var(--ls-caption);
+  }
+
+  @media (max-width: 640px) {
+    th,
+    td {
+      padding: 10px 12px;
+      font-size: var(--fs-body-sm);
+    }
+  }
+</style>

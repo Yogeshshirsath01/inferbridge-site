@@ -1,0 +1,78 @@
+---
+/**
+ * Waitlist — secondary CTA block above footer.
+ * Launch date is [Day-14 date] placeholder until Yogesh locks it.
+ * Copy doc §10: Loops embed point is a placeholder comment.
+ */
+import Container from "./Container.astro";
+import Section from "./Section.astro";
+import TextBlock from "./TextBlock.astro";
+---
+
+<Section id="waitlist">
+  <Container>
+    <TextBlock align="center">
+      <h2>Launching publicly on [Day-14 date].</h2>
+      <p class="sub">
+        Get the public launch announcement, early-access pricing, and the
+        v0.2.0 migration guide.
+      </p>
+
+      <!-- LOOPS_EMBED_HERE -->
+      <!--
+        Paste the Loops.so form embed snippet here. Until it&rsquo;s set
+        up, a fallback mailto CTA keeps the page functional.
+      -->
+      <div class="fallback">
+        <a class="cta-primary" href="mailto:yogesh@inferbridge.dev?subject=InferBridge%20waitlist"
+          >Join the waitlist</a
+        >
+        <p class="note">
+          Loops embed drops in here &mdash; until then, email works too.
+        </p>
+      </div>
+    </TextBlock>
+  </Container>
+</Section>
+
+<style>
+  h2 {
+    margin-bottom: 16px;
+  }
+
+  .sub {
+    color: var(--gray-300);
+    font-size: var(--fs-body);
+    max-width: 600px;
+    margin-inline: auto;
+    margin-bottom: 40px;
+  }
+
+  .fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .cta-primary {
+    background-color: var(--accent);
+    color: var(--gray-50);
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: var(--fs-body);
+    transition: background-color var(--transition);
+  }
+
+  .cta-primary:hover {
+    background-color: #6e7bf5;
+    text-decoration: none;
+  }
+
+  .note {
+    color: var(--gray-300);
+    font-size: var(--fs-caption);
+    letter-spacing: var(--ls-caption);
+  }
+</style>

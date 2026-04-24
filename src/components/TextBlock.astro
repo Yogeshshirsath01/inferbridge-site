@@ -1,0 +1,29 @@
+---
+/**
+ * Centered text column capped at 720px — hero headline, section intros.
+ * Design doc §3.
+ */
+interface Props {
+  align?: "center" | "left";
+}
+const { align = "center" } = Astro.props;
+---
+
+<div class:list={["textblock", `align-${align}`]}>
+  <slot />
+</div>
+
+<style>
+  .textblock {
+    max-width: var(--text-max);
+  }
+
+  .align-center {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .align-left {
+    text-align: left;
+  }
+</style>

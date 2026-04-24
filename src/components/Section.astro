@@ -1,0 +1,37 @@
+---
+/**
+ * Vertical-rhythm wrapper for every major page section.
+ * Padding-block values traced to design doc §3.
+ */
+interface Props {
+  background?: "default" | "raised";
+  id?: string;
+}
+const { background = "default", id } = Astro.props;
+---
+
+<section class:list={["section", `bg-${background}`]} id={id}>
+  <slot />
+</section>
+
+<style>
+  .section {
+    padding-block: var(--section-pad-desktop);
+  }
+
+  .bg-raised {
+    background-color: var(--gray-900);
+  }
+
+  @media (max-width: 960px) {
+    .section {
+      padding-block: var(--section-pad-tablet);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .section {
+      padding-block: var(--section-pad-mobile);
+    }
+  }
+</style>

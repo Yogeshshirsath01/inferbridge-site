@@ -1,0 +1,175 @@
+/* InferBridge landing page — global styles.
+ *
+ * Design tokens from docs/design/landing-page-v1.md in the main
+ * InferBridge repo. All color and typography values are traceable to
+ * that document; do not edit one without editing the other.
+ */
+
+:root {
+  /* ---- Color — accent (electric indigo) ---- */
+  --accent: #5b6af0;
+  --accent-muted: #2e3580;
+  --accent-dim: #1a1d4a;
+
+  /* ---- Color — grayscale (dark-mode-first) ---- */
+  --gray-950: #0c0d0f;
+  --gray-900: #111318;
+  --gray-800: #1c1f26;
+  --gray-700: #2a2e38;
+  --gray-500: #5a5f6e;
+  --gray-300: #9ba1af;
+  --gray-100: #e8eaf0;
+  --gray-50: #f4f5f8;
+
+  /* ---- Typography ---- */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular,
+    "SF Mono", Consolas, monospace;
+
+  /* Type scale — design doc §2 */
+  --fs-h1: 3.5rem;        /* 56px */
+  --fs-h2: 2.25rem;       /* 36px */
+  --fs-h3: 1.25rem;       /* 20px */
+  --fs-body: 1.0625rem;   /* 17px */
+  --fs-body-sm: 0.9375rem;/* 15px */
+  --fs-caption: 0.8125rem;/* 13px */
+  --fs-code-inline: 0.875rem;  /* 14px */
+  --fs-code-block: 0.844rem;   /* 13.5px */
+
+  --lh-h1: 1.1;
+  --lh-h2: 1.2;
+  --lh-h3: 1.3;
+  --lh-body: 1.7;
+  --lh-body-sm: 1.65;
+  --lh-caption: 1.5;
+  --lh-code-block: 1.75;
+
+  --ls-h1: -0.03em;
+  --ls-h2: -0.02em;
+  --ls-h3: -0.01em;
+  --ls-caption: 0.02em;
+
+  /* ---- Spacing ---- */
+  --section-pad-desktop: 120px;
+  --section-pad-tablet: 80px;
+  --section-pad-mobile: 64px;
+  --container-max: 1100px;
+  --text-max: 720px;
+  --gutter: 20px;
+
+  /* ---- Motion ---- */
+  --transition: 150ms ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: var(--gray-950);
+  color: var(--gray-100);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100vh;
+  font-size: var(--fs-body);
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  color: var(--gray-50);
+}
+
+h1 {
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  letter-spacing: var(--ls-h1);
+}
+
+h2 {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--ls-h2);
+}
+
+h3 {
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  letter-spacing: var(--ls-h3);
+}
+
+p {
+  color: var(--gray-100);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--transition), text-decoration var(--transition);
+}
+
+a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+code,
+pre,
+kbd {
+  font-family: var(--font-mono);
+}
+
+code {
+  font-size: var(--fs-code-inline);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: var(--gray-50);
+}
+
+/* ---- Mobile adaptations — design doc §7 ---- */
+@media (max-width: 768px) {
+  :root {
+    --fs-h1: 2.25rem;     /* 36px */
+    --fs-h2: 1.625rem;    /* 26px */
+    --lh-h1: 1.2;
+    --lh-h2: 1.3;
+  }
+}

@@ -1,0 +1,140 @@
+---
+/**
+ * Footer — copy doc §9.
+ * Links: Docs, Changelog, GitHub, Twitter, Email, Support.
+ */
+import Container from "./Container.astro";
+---
+
+<footer class="footer">
+  <Container>
+    <div class="grid">
+      <div class="tagline">
+        <p class="brand">InferBridge</p>
+        <p class="place">Made in Pune, India.</p>
+      </div>
+
+      <nav class="cols" aria-label="Footer navigation">
+        <div class="col">
+          <p class="col-title">Product</p>
+          <ul>
+            <li>
+              <a href="https://github.com/Yogeshshirsath01/InferBridge#readme">Docs</a>
+            </li>
+            <li>
+              <a
+                href="https://github.com/Yogeshshirsath01/InferBridge/blob/main/docs/changelog.md"
+                >Changelog</a
+              >
+            </li>
+          </ul>
+        </div>
+
+        <div class="col">
+          <p class="col-title">Company</p>
+          <ul>
+            <li>
+              <a href="https://github.com/Yogeshshirsath01/InferBridge">GitHub</a>
+            </li>
+            <li>
+              <a href="https://twitter.com/">Twitter</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="col">
+          <p class="col-title">Contact</p>
+          <ul>
+            <li><a href="mailto:yogesh@inferbridge.dev">yogesh@inferbridge.dev</a></li>
+            <li><a href="mailto:hello@inferbridge.dev">hello@inferbridge.dev</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <p class="copyright">
+      &copy; 2026 InferBridge. BYOK gateway for large language models.
+    </p>
+  </Container>
+</footer>
+
+<style>
+  .footer {
+    padding-block: 80px 48px;
+    background-color: var(--gray-950);
+    border-block-start: 1px solid var(--gray-700);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 48px;
+    padding-block-end: 48px;
+    border-block-end: 1px solid var(--gray-700);
+    margin-block-end: 28px;
+  }
+
+  .brand {
+    color: var(--gray-50);
+    font-weight: 600;
+    font-size: 1.125rem;
+    margin-bottom: 6px;
+  }
+
+  .place {
+    color: var(--gray-300);
+    font-size: var(--fs-body-sm);
+  }
+
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  .col-title {
+    color: var(--gray-300);
+    font-size: var(--fs-caption);
+    font-weight: 500;
+    letter-spacing: var(--ls-caption);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .col a {
+    color: var(--gray-300);
+    font-size: var(--fs-body-sm);
+    transition: color var(--transition);
+  }
+
+  .col a:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .copyright {
+    color: var(--gray-300);
+    font-size: var(--fs-caption);
+    letter-spacing: var(--ls-caption);
+    text-align: left;
+  }
+
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .cols {
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+  }
+</style>

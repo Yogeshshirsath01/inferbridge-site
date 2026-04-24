@@ -1,0 +1,302 @@
+---
+/**
+ * Code migration — design doc §5.
+ * CSS-only tab switching via `<input type="radio"> + :checked ~`.
+ * Git-diff highlighting on individual lines. Copy button per panel.
+ */
+import Container from "./Container.astro";
+import TextBlock from "./TextBlock.astro";
+import Section from "./Section.astro";
+---
+
+<Section background="raised">
+  <Container>
+    <TextBlock align="center">
+      <h2>Two lines. That&rsquo;s the migration.</h2>
+      <p class="intro">
+        No new SDK. No refactoring. Change your base URL and key &mdash;
+        your prompts, streaming, parameters, and parsing stay exactly the
+        same.
+      </p>
+    </TextBlock>
+
+    <div class="tabs" role="region" aria-label="Migration examples">
+      <input type="radio" id="tab-py" name="lang" checked />
+      <input type="radio" id="tab-js" name="lang" />
+      <input type="radio" id="tab-curl" name="lang" />
+
+      <div class="tablist" role="tablist">
+        <label for="tab-py" class="tab" role="tab">Python</label>
+        <label for="tab-js" class="tab" role="tab">Node.js</label>
+        <label for="tab-curl" class="tab" role="tab">cURL</label>
+      </div>
+
+      <div class="block" role="group" aria-label="Code example">
+        <div class="chrome">
+          <div class="lights" aria-hidden="true">
+            <span class="light l1"></span>
+            <span class="light l2"></span>
+            <span class="light l3"></span>
+          </div>
+          <button class="copy" data-copy="py" aria-label="Copy Python example"
+            >Copy</button
+          >
+          <button class="copy" data-copy="js" aria-label="Copy Node.js example"
+            >Copy</button
+          >
+          <button class="copy" data-copy="curl" aria-label="Copy cURL example"
+            >Copy</button
+          >
+        </div>
+
+        <pre class="panel panel-py" id="code-py"><code><span class="line cmt"># Before</span>
+<span class="line">from openai import OpenAI</span>
+<span class="line removed">client = OpenAI(api_key="sk-...")</span>
+<span class="line"></span>
+<span class="line cmt"># After &mdash; change these two lines</span>
+<span class="line">from openai import OpenAI</span>
+<span class="line">client = OpenAI(</span>
+<span class="line added">    api_key="ib_your_key_here",</span>
+<span class="line added">    base_url="https://inferbridge.dev/v1",</span>
+<span class="line">)</span></code></pre>
+
+        <pre class="panel panel-js" id="code-js"><code><span class="line cmt">// Before</span>
+<span class="line">import OpenAI from "openai";</span>
+<span class="line removed">const client = new OpenAI(&lbrace; apiKey: process.env.OPENAI_API_KEY &rbrace;);</span>
+<span class="line"></span>
+<span class="line cmt">// After &mdash; change these two lines</span>
+<span class="line">import OpenAI from "openai";</span>
+<span class="line">const client = new OpenAI(&lbrace;</span>
+<span class="line added">  apiKey: process.env.INFERBRIDGE_API_KEY,</span>
+<span class="line added">  baseURL: "https://inferbridge.dev/v1",</span>
+<span class="line">&rbrace;);</span></code></pre>
+
+        <pre class="panel panel-curl" id="code-curl"><code><span class="line cmt"># Before</span>
+<span class="line removed">curl https://api.openai.com/v1/chat/completions \</span>
+<span class="line removed">  -H "Authorization: Bearer sk-..." \</span>
+<span class="line removed">  -d '&lbrace;"model":"gpt-4o-mini","messages":[&lbrace;"role":"user","content":"Hi"&rbrace;]&rbrace;'</span>
+<span class="line"></span>
+<span class="line cmt"># After &mdash; change these two lines</span>
+<span class="line added">curl https://inferbridge.dev/v1/chat/completions \</span>
+<span class="line added">  -H "Authorization: Bearer ib_your_key_here" \</span>
+<span class="line added">  -d '&lbrace;"model":"ib/balanced","messages":[&lbrace;"role":"user","content":"Hi"&rbrace;]&rbrace;'</span></code></pre>
+      </div>
+    </div>
+
+    <TextBlock align="center">
+      <p class="caption">
+        That&rsquo;s it. No code changes. No lock-in. Revert the two lines
+        anytime.
+      </p>
+    </TextBlock>
+  </Container>
+</Section>
+
+<style>
+  .intro {
+    color: var(--gray-300);
+    font-size: var(--fs-body);
+    margin-block: 20px 56px;
+    max-width: 600px;
+    margin-inline: auto;
+  }
+
+  /* ---- Tabs ---- */
+  .tabs {
+    max-width: var(--container-max);
+    margin-inline: auto;
+  }
+
+  .tabs input[name="lang"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .tablist {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--gray-700);
+  }
+
+  .tab {
+    padding: 10px 16px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    color: var(--gray-300);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color var(--transition), border-color var(--transition);
+  }
+
+  .tab:hover {
+    color: var(--gray-300);
+  }
+
+  /* Active tab via :checked */
+  #tab-py:checked ~ .tablist label[for="tab-py"],
+  #tab-js:checked ~ .tablist label[for="tab-js"],
+  #tab-curl:checked ~ .tablist label[for="tab-curl"] {
+    color: var(--gray-50);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Focus ring on labels when radio has focus */
+  #tab-py:focus-visible ~ .tablist label[for="tab-py"],
+  #tab-js:focus-visible ~ .tablist label[for="tab-js"],
+  #tab-curl:focus-visible ~ .tablist label[for="tab-curl"] {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* ---- Block chrome ---- */
+  .block {
+    background-color: var(--gray-800);
+    border: 1px solid var(--gray-700);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .chrome {
+    height: 40px;
+    background-color: var(--gray-900);
+    border-bottom: 1px solid var(--gray-700);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: 16px;
+    position: relative;
+  }
+
+  .lights {
+    display: flex;
+    gap: 8px;
+  }
+
+  .light {
+    inline-size: 12px;
+    block-size: 12px;
+    border-radius: 50%;
+  }
+
+  .l1 { background-color: #ff5f57; }
+  .l2 { background-color: #febc2e; }
+  .l3 { background-color: #28c841; }
+
+  /* ---- Copy buttons (one per panel, only active-panel's shows) ---- */
+  .copy {
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    color: var(--gray-300);
+    transition: color var(--transition);
+    display: none;
+  }
+
+  .copy:hover,
+  .copy:focus-visible {
+    color: var(--gray-100);
+  }
+
+  .copy.copied {
+    color: var(--accent);
+  }
+
+  #tab-py:checked ~ .block .copy[data-copy="py"],
+  #tab-js:checked ~ .block .copy[data-copy="js"],
+  #tab-curl:checked ~ .block .copy[data-copy="curl"] {
+    display: inline;
+  }
+
+  /* ---- Panels ---- */
+  .panel {
+    display: none;
+    margin: 0;
+    padding: 20px 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-code-block);
+    line-height: var(--lh-code-block);
+    color: var(--gray-100);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    counter-reset: line;
+  }
+
+  #tab-py:checked ~ .block .panel-py,
+  #tab-js:checked ~ .block .panel-js,
+  #tab-curl:checked ~ .block .panel-curl {
+    display: block;
+  }
+
+  .panel code {
+    display: block;
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  .line {
+    display: block;
+    padding-inline: 60px 20px;
+    position: relative;
+    counter-increment: line;
+    white-space: pre;
+  }
+
+  .line::before {
+    content: counter(line);
+    position: absolute;
+    inset-inline-start: 0;
+    inline-size: 40px;
+    padding-inline-end: 12px;
+    text-align: right;
+    color: var(--gray-500);
+    opacity: 0.5;
+    border-right: 1px solid var(--gray-700);
+    user-select: none;
+  }
+
+  .line.cmt {
+    color: var(--gray-300);
+  }
+
+  .line.removed {
+    background-color: rgba(255, 0, 0, 0.06);
+    box-shadow: inset 3px 0 0 rgba(255, 100, 100, 0.45);
+  }
+
+  .line.added {
+    background-color: rgba(91, 106, 240, 0.08);
+    box-shadow: inset 3px 0 0 rgba(91, 106, 240, 0.55);
+  }
+
+  .caption {
+    color: var(--gray-300);
+    font-size: var(--fs-caption);
+    text-align: center;
+    margin-block-start: 20px;
+    letter-spacing: var(--ls-caption);
+  }
+
+  /* ---- Mobile ---- */
+  @media (max-width: 768px) {
+    .lights {
+      display: none;
+    }
+
+    .chrome {
+      padding-inline: 12px;
+      justify-content: flex-end;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .line {
+      padding-inline: 12px;
+    }
+    .line::before {
+      display: none;
+    }
+  }
+</style>

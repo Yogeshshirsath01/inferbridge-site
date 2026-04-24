@@ -1,0 +1,135 @@
+---
+/**
+ * Hero — design doc §4.
+ * Single column, centered. Badge pill → h1 → subhead → CTA row.
+ * No code snippet. No image.
+ */
+import Container from "./Container.astro";
+import TextBlock from "./TextBlock.astro";
+---
+
+<section class="hero">
+  <Container>
+    <TextBlock align="center">
+      <p class="badge"><span class="dot" aria-hidden="true"></span>Built in public · v0.2.0</p>
+      <h1>
+        One API for every LLM.<br />
+        <span class="accent">Global, open-source, and Indian.</span>
+      </h1>
+      <p class="subhead">
+        Drop-in OpenAI-compatible gateway with routing, caching, and
+        observability across OpenAI, Anthropic, Together, Sarvam, and your
+        self-hosted models. BYOK. Zero markup.
+      </p>
+      <div class="ctas">
+        <a class="cta-primary" href="#waitlist">Join the waitlist</a>
+        <a class="cta-secondary" href="https://github.com/Yogeshshirsath01/InferBridge#readme"
+          >Read the docs →</a
+        >
+      </div>
+    </TextBlock>
+  </Container>
+</section>
+
+<style>
+  .hero {
+    padding-block: 160px 140px;
+    background-color: var(--gray-950);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background-color: var(--accent-dim);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    font-weight: 500;
+    letter-spacing: var(--ls-caption);
+    margin-bottom: 40px;
+  }
+
+  .dot {
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 50%;
+    background-color: var(--accent);
+  }
+
+  h1 {
+    margin-bottom: 32px;
+  }
+
+  .accent {
+    color: var(--gray-300);
+  }
+
+  .subhead {
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--gray-300);
+    line-height: 1.5;
+    max-width: 640px;
+    margin-inline: auto;
+    margin-bottom: 48px;
+  }
+
+  .ctas {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .cta-primary {
+    background-color: var(--accent);
+    color: var(--gray-50);
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: var(--fs-body);
+    transition: background-color var(--transition);
+  }
+
+  .cta-primary:hover {
+    background-color: #6e7bf5;
+    text-decoration: none;
+  }
+
+  .cta-secondary {
+    color: var(--gray-300);
+    padding: 12px 8px;
+    font-weight: 500;
+    font-size: var(--fs-body);
+    transition: color var(--transition);
+  }
+
+  .cta-secondary:hover {
+    color: var(--gray-50);
+    text-decoration: none;
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      padding-block: 96px 80px;
+    }
+
+    .subhead {
+      font-size: var(--fs-body);
+    }
+
+    .ctas {
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .cta-primary,
+    .cta-secondary {
+      inline-size: 100%;
+      text-align: center;
+    }
+  }
+</style>
