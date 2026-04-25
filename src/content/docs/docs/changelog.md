@@ -6,6 +6,61 @@ description: All user-visible changes to InferBridge, by release.
 All user-visible changes to InferBridge (formerly Agni AI) land here.
 Dates are UTC.
 
+## v0.2.5 — 2026-04-25
+
+Adds **Krutrim** as the tenth supported provider — the second
+India-residency option after Sarvam. No breaking changes; no
+deprecations.
+
+### Provider — Krutrim
+
+- New BYOK provider value: **`krutrim`**. Register a Krutrim API key
+  at `cloud.olakrutrim.com`, then `POST /v1/keys` with
+  `{"provider": "krutrim", "api_key": "..."}`. Residency is `india`
+  (same bucket as Sarvam).
+- Krutrim exposes an OpenAI-compatible Chat Completions endpoint at
+  `https://cloud.olakrutrim.com/v1`; the adapter is a direct
+  pass-through with no request or response translation.
+- Suggested models: `Krutrim-spectre-v2` (Krutrim's own model) and
+  `DeepSeek-R1` (Krutrim-hosted, priced separately from
+  `provider="deepseek"`'s `deepseek-reasoner`). Use either directly
+  via `X-InferBridge-Override-Model: krutrim:<model>`.
+- Pricing surfaced through `inferbridge.cost_usd` uses the published
+  per-million-token rates: `Krutrim-spectre-v2` `$0.40 / $1.20` and
+  `DeepSeek-R1` `$0.50 / $1.50` for input/output respectively.
+
+### Routing changes — second-line India fallback
+
+The static routing table slots Krutrim **after** Sarvam in both
+`ib/cheap` and `ib/balanced`. With both keys registered, Sarvam still
+serves first; if Sarvam is unavailable (5xx/timeout/429), the router
+falls back to Krutrim before drifting back to global providers. The
+premium tier remains reserved for Anthropic / OpenAI / Mistral.
+
+| Mode | Order |
+|---|---|
+| `ib/cheap` | `groq` → `deepseek` → `together` → `sarvam` → `krutrim` → `openai` |
+| `ib/balanced` | `openai` → `groq` → `cohere` → `sarvam` → `krutrim` → `anthropic` |
+| `ib/premium` | `anthropic` → `openai` → `mistral` *(unchanged)* |
+
+### Multi-provider residency — `X-InferBridge-Residency: india`
+
+`X-InferBridge-Residency: india` now resolves to **both** Sarvam and
+Krutrim (in tier order) as candidates. The residency filter has
+always been a string-equality match over the candidate list, so two
+providers sharing the `india` bucket coexist without code changes —
+the filter just keeps every key whose residency equals the requested
+value. If you don't have a Krutrim key registered, the router skips
+the Krutrim slot exactly as before.
+
+### Streaming + fallback
+
+Krutrim returns standard OpenAI-shaped SSE deltas; existing streaming
+clients work unchanged. Fallback budget (max 2 candidates per request,
+streaming fallback before first token only) is unchanged.
+
+---
+
 ## v0.2.4 — 2026-04-25
 
 Adds **Cohere** as the ninth supported provider. No breaking changes;

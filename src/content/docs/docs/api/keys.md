@@ -69,6 +69,7 @@ Content-Type: application/json
 | `cohere` | `provider`, `api_key` | Best for RAG workloads — `command-r-plus`, `command-r`, `command-light` |
 | `mistral` | `provider`, `api_key` | EU data residency (`X-InferBridge-Residency: eu`) |
 | `sarvam` | `provider`, `api_key` | Residency auto-set to `india` |
+| `krutrim` | `provider`, `api_key` | OLA-backed second India provider — `Krutrim-spectre-v2`, `DeepSeek-R1` |
 | `self_hosted` | `provider`, `api_key`, `base_url`, `declared_region` | See below |
 
 ### Optional fields
