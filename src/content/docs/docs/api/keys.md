@@ -15,7 +15,7 @@ Content-Type: application/json
 ```
 
 ```shell
-curl -X POST https://inferbridge.dev/v1/users \
+curl -X POST https://api.inferbridge.dev/v1/users \
   -H 'Content-Type: application/json' \
   -d '{"email":"you@example.com"}'
 ```
@@ -84,7 +84,7 @@ Content-Type: application/json
 yourself (vLLM, TGI, Ollama, llama.cpp, LM Studio, etc.):
 
 ```shell
-curl -X POST https://inferbridge.dev/v1/keys \
+curl -X POST https://api.inferbridge.dev/v1/keys \
   -H 'Authorization: Bearer ib_...' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -131,7 +131,7 @@ partial — so a user can register `mumbai-llama-70b`,
 ## List provider keys
 
 ```shell
-curl https://inferbridge.dev/v1/keys \
+curl https://api.inferbridge.dev/v1/keys \
   -H 'Authorization: Bearer ib_...'
 ```
 
@@ -156,7 +156,7 @@ Secrets are never returned.
 ## Delete a provider key
 
 ```shell
-curl -X DELETE https://inferbridge.dev/v1/keys/5e4b02f9-2efb-4b69-8d6b-0a8e4e3e6ab2 \
+curl -X DELETE https://api.inferbridge.dev/v1/keys/5e4b02f9-2efb-4b69-8d6b-0a8e4e3e6ab2 \
   -H 'Authorization: Bearer ib_...'
 ```
 

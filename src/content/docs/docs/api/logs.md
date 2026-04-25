@@ -47,12 +47,12 @@ Walk until `next_cursor` is `null`:
 
 ```shell
 # Page 1
-curl "https://inferbridge.dev/v1/logs?limit=100" \
+curl "https://api.inferbridge.dev/v1/logs?limit=100" \
   -H 'Authorization: Bearer ib_...'
 # → {"data":[... 100 rows ...],"next_cursor":"eyJ0I..."}
 
 # Page 2 — use the cursor from page 1
-curl "https://inferbridge.dev/v1/logs?limit=100&cursor=eyJ0I..." \
+curl "https://api.inferbridge.dev/v1/logs?limit=100&cursor=eyJ0I..." \
   -H 'Authorization: Bearer ib_...'
 # → {"data":[... 100 rows ...],"next_cursor":"eyJ0J..."}
 

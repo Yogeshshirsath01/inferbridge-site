@@ -86,7 +86,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="ib_...",
-    base_url="https://inferbridge.dev/v1",
+    base_url="https://api.inferbridge.dev/v1",
 )
 
 stream = client.chat.completions.create(

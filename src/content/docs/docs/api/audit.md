@@ -81,7 +81,7 @@ response header.
 ```python
 import hashlib, json, requests
 report = requests.get(
-    "https://inferbridge.dev/v1/audit/export",
+    "https://api.inferbridge.dev/v1/audit/export",
     params={"start_date": "2026-01-01T00:00:00+00:00",
             "end_date":   "2026-04-01T00:00:00+00:00"},
     headers={"Authorization": "Bearer ib_..."},
@@ -100,7 +100,7 @@ SHA-256 the bytes, compare hex digests.
 ### PDF export
 
 ```shell
-curl "https://inferbridge.dev/v1/audit/export?start_date=...&end_date=...&format=pdf" \
+curl "https://api.inferbridge.dev/v1/audit/export?start_date=...&end_date=...&format=pdf" \
   -H 'Authorization: Bearer ib_...' \
   -o audit.pdf
 ```

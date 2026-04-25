@@ -14,7 +14,7 @@ The key is shown exactly once — save it somewhere before you close the
 terminal.
 
 ```shell
-curl -X POST https://inferbridge.dev/v1/users \
+curl -X POST https://api.inferbridge.dev/v1/users \
   -H 'Content-Type: application/json' \
   -d '{"email":"you@example.com"}'
 # → {"user_id":"...","email":"...","api_key":"ib_...","shown_once":true}
@@ -26,7 +26,7 @@ BYOK: InferBridge encrypts your provider key at rest and forwards
 requests on your behalf. No markup, no proxying of your bill.
 
 ```shell
-curl -X POST https://inferbridge.dev/v1/keys \
+curl -X POST https://api.inferbridge.dev/v1/keys \
   -H 'Authorization: Bearer ib_...' \
   -H 'Content-Type: application/json' \
   -d '{"provider":"openai","api_key":"sk-..."}'
@@ -53,7 +53,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="ib_...",
-    base_url="https://inferbridge.dev/v1",
+    base_url="https://api.inferbridge.dev/v1",
 )
 
 resp = client.chat.completions.create(

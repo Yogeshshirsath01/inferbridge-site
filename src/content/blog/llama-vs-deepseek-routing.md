@@ -92,7 +92,7 @@ response shape regardless of which provider served it — the
 which one did.
 
 ```bash
-curl https://inferbridge.dev/v1/chat/completions \
+curl https://api.inferbridge.dev/v1/chat/completions \
   -H "Authorization: Bearer ib_..." \
   -H "Content-Type: application/json" \
   -d '{
@@ -108,7 +108,7 @@ you want the chain-of-thought back — bypass the tier entirely and
 pin the request to R1 with the override header:
 
 ```bash
-curl https://inferbridge.dev/v1/chat/completions \
+curl https://api.inferbridge.dev/v1/chat/completions \
   -H "Authorization: Bearer ib_..." \
   -H "Content-Type: application/json" \
   -H "X-InferBridge-Override-Model: deepseek:deepseek-reasoner" \

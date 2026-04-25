@@ -15,7 +15,7 @@ hero:
 ---
 
 InferBridge is a drop-in, OpenAI-compatible gateway. Point your existing
-OpenAI SDK at `https://inferbridge.dev/v1`, keep your prompts and
+OpenAI SDK at `https://api.inferbridge.dev/v1`, keep your prompts and
 streaming code unchanged, and get tier-based routing, per-request
 caching, residency filtering, and per-call observability across OpenAI,
 Anthropic, Together, Sarvam, and your own self-hosted endpoints.

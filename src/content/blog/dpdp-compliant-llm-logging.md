@@ -85,7 +85,7 @@ artifact, not a CSV exported from a query tool. `GET /v1/audit/export`
 produces that artifact:
 
 ```bash
-curl "https://inferbridge.dev/v1/audit/export?start_date=2026-04-01T00:00:00+00:00&end_date=2026-04-15T00:00:00+00:00" \
+curl "https://api.inferbridge.dev/v1/audit/export?start_date=2026-04-01T00:00:00+00:00&end_date=2026-04-15T00:00:00+00:00" \
   -H "Authorization: Bearer ib_..." \
   -o audit.json
 ```

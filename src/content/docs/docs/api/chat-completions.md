@@ -58,7 +58,7 @@ that's read as a fallback until 2026-07-22. If both are sent, the
 ### Example
 
 ```shell
-curl -X POST https://inferbridge.dev/v1/chat/completions \
+curl -X POST https://api.inferbridge.dev/v1/chat/completions \
   -H 'Authorization: Bearer ib_...' \
   -H 'Content-Type: application/json' \
   -H 'X-InferBridge-Cache: true' \
@@ -126,7 +126,7 @@ carries the `inferbridge` metadata block on the `choices[0].delta`
 object, so a single parser can extract it without special-casing.
 
 ```shell
-curl -N -X POST https://inferbridge.dev/v1/chat/completions \
+curl -N -X POST https://api.inferbridge.dev/v1/chat/completions \
   -H 'Authorization: Bearer ib_...' \
   -H 'Content-Type: application/json' \
   -d '{

@@ -19,13 +19,13 @@ One-time setup first:
 
 ```shell
 # 1) Mint an InferBridge API key.
-curl -X POST https://inferbridge.dev/v1/users \
+curl -X POST https://api.inferbridge.dev/v1/users \
   -H 'Content-Type: application/json' \
   -d '{"email":"you@example.com"}'
 # → copy api_key from response (shown exactly once)
 
 # 2) Register your OpenAI key so InferBridge can forward traffic on your behalf.
-curl -X POST https://inferbridge.dev/v1/keys \
+curl -X POST https://api.inferbridge.dev/v1/keys \
   -H 'Authorization: Bearer ib_...' \
   -H 'Content-Type: application/json' \
   -d '{"provider":"openai","api_key":"sk-..."}'
@@ -57,7 +57,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="ib_...",                                            # ← line 1
-    base_url="https://inferbridge.dev/v1",      # ← line 2
+    base_url="https://api.inferbridge.dev/v1",      # ← line 2
 )
 
 resp = client.chat.completions.create(
@@ -99,7 +99,7 @@ import OpenAI from "openai";
 
 const client = new OpenAI({
   apiKey: process.env.INFERBRIDGE_API_KEY,                       // ← line 1
-  baseURL: "https://inferbridge.dev/v1",        // ← line 2
+  baseURL: "https://api.inferbridge.dev/v1",        // ← line 2
 });
 
 const resp = await client.chat.completions.create({

@@ -57,7 +57,7 @@ import Section from "./Section.astro";
 <span class="line">from openai import OpenAI</span>
 <span class="line">client = OpenAI(</span>
 <span class="line added">    api_key="ib_your_key_here",</span>
-<span class="line added">    base_url="https://inferbridge.dev/v1",</span>
+<span class="line added">    base_url="https://api.inferbridge.dev/v1",</span>
 <span class="line">)</span></code></pre>
 
         <pre class="panel panel-js" id="code-js"><code><span class="line cmt">// Before</span>
@@ -68,7 +68,7 @@ import Section from "./Section.astro";
 <span class="line">import OpenAI from "openai";</span>
 <span class="line">const client = new OpenAI(&lbrace;</span>
 <span class="line added">  apiKey: process.env.INFERBRIDGE_API_KEY,</span>
-<span class="line added">  baseURL: "https://inferbridge.dev/v1",</span>
+<span class="line added">  baseURL: "https://api.inferbridge.dev/v1",</span>
 <span class="line">&rbrace;);</span></code></pre>
 
         <pre class="panel panel-curl" id="code-curl"><code><span class="line cmt"># Before</span>
@@ -77,7 +77,7 @@ import Section from "./Section.astro";
 <span class="line removed">  -d '&lbrace;"model":"gpt-4o-mini","messages":[&lbrace;"role":"user","content":"Hi"&rbrace;]&rbrace;'</span>
 <span class="line"></span>
 <span class="line cmt"># After &mdash; change these two lines</span>
-<span class="line added">curl https://inferbridge.dev/v1/chat/completions \</span>
+<span class="line added">curl https://api.inferbridge.dev/v1/chat/completions \</span>
 <span class="line added">  -H "Authorization: Bearer ib_your_key_here" \</span>
 <span class="line added">  -d '&lbrace;"model":"ib/balanced","messages":[&lbrace;"role":"user","content":"Hi"&rbrace;]&rbrace;'</span></code></pre>
       </div>
