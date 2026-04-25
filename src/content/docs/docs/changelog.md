@@ -6,6 +6,59 @@ description: All user-visible changes to InferBridge, by release.
 All user-visible changes to InferBridge (formerly Agni AI) land here.
 Dates are UTC.
 
+## v0.3.0 — 2026-04-25
+
+Adds the **DPDP audit export** endpoint — a signed compliance report of
+request metadata over a bounded window. No breaking changes; no
+deprecations.
+
+### New endpoint — `GET /v1/audit/export`
+
+- Returns a self-contained, SHA-256-signed report of `request_logs`
+  metadata for the authenticated user across a given window. Designed
+  for India's DPDP Act / GDPR data-inventory obligations: the artefact
+  is portable, reproducible, and verifiable after it leaves the
+  gateway.
+- Required query params: `start_date`, `end_date` (ISO 8601 with tz).
+- Optional: `format` = `json` (default) or `pdf`; `residency` =
+  `india` / `global` / `eu` (filters on `residency_actual`).
+- Window cap is **90 days**, identical to `/v1/stats`. Longer histories
+  are supported by chaining successive calls.
+- The signature value is also exposed via the
+  `X-InferBridge-Audit-Signature` response header so PDF consumers can
+  cross-check against a JSON copy without re-parsing the binary.
+
+### Signature canonicalisation
+
+The signature is the SHA-256 hex digest of:
+
+1. The report dict with the `signature` key removed.
+2. Serialized via `json.dumps(..., sort_keys=True, separators=(",", ":"))`
+   — no whitespace, keys sorted, UTF-8 bytes.
+
+A 4-line Python verifier ships in [api.md → Audit
+export](api.md#audit-export). The canonicalisation is intentionally
+boring (stdlib `json` + `hashlib`) so auditors can replicate it without
+installing the InferBridge SDK.
+
+### What's NOT exported
+
+By design, the audit body contains only metadata: provider, model,
+tokens, latency, cost, residency, status, error class. Prompts,
+completions, tool calls, and message bodies are **never** included
+because they are never stored (see CLAUDE.md § Security Rules). If
+your compliance review needs conversation content, source it from
+your own application logs.
+
+### Dependencies
+
+- New runtime dep: **`reportlab>=4.0`** (PDF rendering, pure Python,
+  no system binaries). Adds ~7 MB to the container image. Wheels for
+  Linux x86_64 + arm64 + macOS are published on PyPI; no extra build
+  steps are needed in CI or on Railway.
+
+---
+
 ## v0.2.5 — 2026-04-25
 
 Adds **Krutrim** as the tenth supported provider — the second

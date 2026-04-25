@@ -156,11 +156,18 @@ extract_api_section "Stats" "Logs" | strip_leading_h2 \
     "Per-user aggregates — totals, by mode, by provider, by residency."
 
 # ---------- api: logs ----------
-extract_api_section "Logs" "Error envelope" | strip_leading_h2 \
+extract_api_section "Logs" "Audit export" | strip_leading_h2 \
   | write_with_frontmatter \
     "$DOCS_OUT/api/logs.md" \
     "Logs" \
     "Reverse-chronological request logs with opaque cursor pagination."
+
+# ---------- api: audit export ----------
+extract_api_section "Audit export" "Error envelope" | strip_leading_h2 \
+  | write_with_frontmatter \
+    "$DOCS_OUT/api/audit.md" \
+    "Audit export" \
+    "Signed DPDP / GDPR compliance export — JSON or PDF, SHA-256 verifiable."
 
 # ---------- api: errors + rate limits (combined) ----------
 {

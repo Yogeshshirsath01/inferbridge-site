@@ -58,6 +58,7 @@ export default defineConfig({
             { label: "Users & provider keys", link: "/docs/api/keys/" },
             { label: "Stats", link: "/docs/api/stats/" },
             { label: "Logs", link: "/docs/api/logs/" },
+            { label: "Audit export", link: "/docs/api/audit/" },
             { label: "Errors", link: "/docs/api/errors/" },
           ],
         },

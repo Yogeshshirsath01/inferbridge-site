@@ -63,6 +63,19 @@ import TextBlock from "./TextBlock.astro";
       </details>
 
       <details>
+        <summary>Can I export an audit log for DPDP / GDPR?</summary>
+        <p>
+          Yes. <code>GET /v1/audit/export</code> returns a signed report
+          (JSON or PDF) of every request the caller has made over a
+          window of up to 90 days, with a SHA-256 signature so the
+          artefact stays verifiable after it leaves InferBridge. Only
+          metadata &mdash; provider, model, tokens, cost, residency
+          &mdash; is included; prompts and completions are never stored
+          and therefore never exported.
+        </p>
+      </details>
+
+      <details>
         <summary>Can I self-host InferBridge?</summary>
         <p>
           Not publicly yet. Open-source release is planned for month 2.
