@@ -13,9 +13,46 @@ import Footer from "../components/Footer.astro";
 const title = "InferBridge — One API for every LLM";
 const description =
   "Drop-in OpenAI-compatible gateway for OpenAI, Anthropic, Together, Sarvam, and self-hosted models. BYOK, zero markup. Two lines to migrate.";
+
+const softwareApplicationLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "InferBridge",
+  url: "https://www.inferbridge.dev",
+  description:
+    "One OpenAI-compatible API for every LLM — global, Indian, and EU providers with fallback, caching, and per-request observability.",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Web",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+};
+
+const organizationLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "InferBridge",
+  url: "https://www.inferbridge.dev",
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "hello@inferbridge.dev",
+  },
+};
 ---
 
 <Layout title={title} description={description}>
+  <script
+    type="application/ld+json"
+    slot="head"
+    set:html={JSON.stringify(softwareApplicationLd)}
+  />
+  <script
+    type="application/ld+json"
+    slot="head"
+    set:html={JSON.stringify(organizationLd)}
+  />
   <main>
     <Hero />
     <CodeMigration />

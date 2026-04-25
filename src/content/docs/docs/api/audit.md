@@ -15,8 +15,8 @@ Authorization: Bearer ib_...
 
 | Param | Required | Notes |
 |---|---|---|
-| `start_date` | yes | ISO 8601 with timezone offset |
-| `end_date` | yes | ISO 8601 with timezone offset; window ≤ 90 days |
+| `start_date` | yes | ISO 8601 datetime with timezone (e.g. `2026-04-01T00:00:00+00:00`) |
+| `end_date` | yes | ISO 8601 datetime with timezone (e.g. `2026-04-01T00:00:00+00:00`); window ≤ 90 days |
 | `format` | no | `json` (default) or `pdf` |
 | `residency` | no | `india`, `global`, or `eu` — filters on `residency_actual` |
 
