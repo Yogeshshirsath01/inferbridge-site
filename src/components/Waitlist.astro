@@ -1,8 +1,8 @@
 ---
 /**
- * Waitlist — secondary CTA block above footer.
- * Launch date is [Day-14 date] placeholder until Yogesh locks it.
- * Copy doc §10: Loops embed point is a placeholder comment.
+ * Waitlist — secondary CTA above footer. Native form posts to the
+ * Loops.so newsletter endpoint with idle / loading / success / error
+ * states and a 60-second client-side rate limit.
  */
 import Container from "./Container.astro";
 import Section from "./Section.astro";
@@ -12,25 +12,28 @@ import TextBlock from "./TextBlock.astro";
 <Section id="waitlist">
   <Container>
     <TextBlock align="center">
-      <h2>Get the launch announcement and v0.2.0 migration guide.</h2>
+      <h2>Be first to know when InferBridge opens up.</h2>
       <p class="sub">
-        Build-in-public updates, early-access pricing, and a heads-up when
-        the public launch lands.
+        Early-access pricing, build-in-public updates, and a heads-up before
+        the public launch. No spam.
       </p>
 
-      <!-- LOOPS_EMBED_HERE -->
-      <!--
-        Paste the Loops.so form embed snippet here. Until it&rsquo;s set
-        up, a fallback mailto CTA keeps the page functional.
-      -->
-      <div class="fallback">
-        <a class="cta-primary" href="mailto:hello@inferbridge.dev?subject=InferBridge%20waitlist"
-          >Join the waitlist</a
-        >
-        <p class="note">
-          Loops embed drops in here &mdash; until then, email works too.
-        </p>
-      </div>
+      <form id="waitlist-form" novalidate>
+        <div class="form-row">
+          <input
+            type="email"
+            name="email"
+            id="waitlist-email"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          />
+          <button type="submit" id="waitlist-submit">
+            Join the waitlist
+          </button>
+        </div>
+        <p class="form-note" id="waitlist-note" aria-live="polite"></p>
+      </form>
     </TextBlock>
   </Container>
 </Section>
@@ -48,33 +51,163 @@ import TextBlock from "./TextBlock.astro";
     margin-bottom: 40px;
   }
 
-  .fallback {
+  .form-row {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
-  .cta-primary {
+  input[type="email"] {
+    background-color: var(--gray-800);
+    border: 1px solid var(--gray-700);
+    color: var(--gray-50);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: var(--fs-body);
+    font-family: var(--font-sans);
+    width: 280px;
+  }
+
+  input[type="email"]::placeholder {
+    color: var(--gray-500);
+  }
+
+  input[type="email"]:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  input[type="email"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  button {
     background-color: var(--accent);
     color: var(--gray-50);
-    padding: 12px 28px;
+    padding: 10px 24px;
     border-radius: 8px;
-    /* 19px + 700 → AA Large (3:1); gray-50 on accent is 4.04:1. See
-     * Hero .cta-primary for the same constraint. */
     font-weight: 700;
-    font-size: 1.1875rem;
+    font-size: var(--fs-body);
+    font-family: var(--font-sans);
+    border: none;
+    cursor: pointer;
     transition: background-color var(--transition);
   }
 
-  .cta-primary:hover {
+  button:hover {
     background-color: #6e7bf5;
-    text-decoration: none;
   }
 
-  .note {
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .form-note {
     color: var(--gray-300);
     font-size: var(--fs-caption);
     letter-spacing: var(--ls-caption);
+    margin-top: 12px;
+    min-height: 20px;
+  }
+
+  #waitlist-form[data-state="success"] .form-note {
+    color: var(--accent-text);
+  }
+
+  #waitlist-form[data-state="error"] .form-note {
+    color: #f87171;
+  }
+
+  @media (max-width: 480px) {
+    .form-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    input[type="email"],
+    button {
+      width: 100%;
+    }
   }
 </style>
+
+<script>
+  const LOOPS_URL =
+    "https://app.loops.so/api/newsletter-form/cmoetifwu2iin0i14sj4hjj6g";
+  const RATE_LIMIT_KEY = "ib-waitlist-ts";
+  const RATE_LIMIT_MS = 60 * 1000;
+  const ERROR_GENERIC = "Something went wrong — please try again.";
+  const ERROR_RATE_LIMIT = "Too many attempts — please wait a moment.";
+  const SUCCESS_MESSAGE = "You're on the list. We'll be in touch.";
+  const BUTTON_IDLE = "Join the waitlist";
+  const BUTTON_LOADING = "Joining…";
+
+  const form = document.getElementById("waitlist-form") as HTMLFormElement | null;
+  const input = document.getElementById("waitlist-email") as HTMLInputElement | null;
+  const button = document.getElementById("waitlist-submit") as HTMLButtonElement | null;
+  const note = document.getElementById("waitlist-note") as HTMLParagraphElement | null;
+  const row = form?.querySelector(".form-row") as HTMLElement | null;
+
+  if (form && input && button && note && row) {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const last = Number(localStorage.getItem(RATE_LIMIT_KEY) ?? 0);
+      if (Date.now() - last < RATE_LIMIT_MS) {
+        form.dataset.state = "error";
+        note.textContent = ERROR_RATE_LIMIT;
+        return;
+      }
+
+      const email = input.value.trim();
+      if (!email) return;
+
+      form.dataset.state = "loading";
+      input.disabled = true;
+      button.disabled = true;
+      button.textContent = BUTTON_LOADING;
+      note.textContent = "";
+
+      localStorage.setItem(RATE_LIMIT_KEY, String(Date.now()));
+
+      try {
+        const response = await fetch(LOOPS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "email=" + encodeURIComponent(email),
+        });
+
+        if (response.ok) {
+          form.dataset.state = "success";
+          row.style.display = "none";
+          note.textContent = SUCCESS_MESSAGE;
+          return;
+        }
+
+        let message = ERROR_GENERIC;
+        try {
+          const data = await response.json();
+          if (data && typeof data.message === "string" && data.message) {
+            message = data.message;
+          }
+        } catch {
+          // Non-JSON error body; fall back to generic message.
+        }
+        form.dataset.state = "error";
+        input.disabled = false;
+        button.disabled = false;
+        button.textContent = BUTTON_IDLE;
+        note.textContent = message;
+      } catch {
+        form.dataset.state = "error";
+        input.disabled = false;
+        button.disabled = false;
+        button.textContent = BUTTON_IDLE;
+        note.textContent = ERROR_GENERIC;
+      }
+    });
+  }
+</script>
