@@ -6,6 +6,52 @@ description: All user-visible changes to InferBridge, by release.
 All user-visible changes to InferBridge (formerly Agni AI) land here.
 Dates are UTC.
 
+## v0.2.1 — 2026-04-25
+
+Adds **Groq** as a sixth supported provider. No breaking changes; no
+deprecations.
+
+### Provider — Groq
+
+- New BYOK provider value: **`groq`**. Register a Groq API key at
+  `console.groq.com`, then `POST /v1/keys` with
+  `{"provider": "groq", "api_key": "gsk_..."}`. Residency is `global`.
+- Groq exposes an OpenAI-compatible Chat Completions endpoint at
+  `https://api.groq.com/openai/v1`; the adapter is a direct
+  pass-through with no request or response translation.
+- Suggested models: `llama-3.3-70b-versatile`, `mixtral-8x7b-32768`,
+  `gemma2-9b-it`. Use the model directly via
+  `X-InferBridge-Override-Model: groq:<model>`.
+- **Free tier is rate-limited** (per-minute and per-day token caps; see
+  `console.groq.com` for current limits). Costs surfaced through
+  `inferbridge.cost_usd` are reported as `"0.000000"` while the free
+  tier is in use; the pricing table will switch to per-million rates
+  once the paid tier ships and operators register paid keys.
+
+### Routing changes
+
+The static routing table now slots Groq into the cheap and balanced
+tiers, in front of the slower commercial alternatives. Premium is
+unchanged — it remains reserved for Anthropic + OpenAI flagships.
+
+| Mode | Order |
+|---|---|
+| `ib/cheap` | `groq` → `together` → `sarvam` → `openai` |
+| `ib/balanced` | `openai` → `groq` → `sarvam` → `anthropic` |
+| `ib/premium` | `anthropic` → `openai` *(unchanged)* |
+
+If you don't have a Groq key registered, the router skips the Groq slot
+and proceeds down the same list — no change in behaviour for existing
+integrations until you register a Groq key.
+
+### Streaming + fallback
+
+Groq returns standard OpenAI-shaped SSE deltas; existing streaming
+clients work unchanged. Fallback budget (max 2 candidates per request,
+streaming fallback before first token only) is unchanged.
+
+---
+
 ## v0.2.0 — 2026-04-23
 
 Product rename: **Agni AI → InferBridge**. The rename is positioning
