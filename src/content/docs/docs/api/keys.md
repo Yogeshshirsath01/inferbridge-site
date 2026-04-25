@@ -65,6 +65,7 @@ Content-Type: application/json
 | `anthropic` | `provider`, `api_key` | — |
 | `together` | `provider`, `api_key` | — |
 | `groq` | `provider`, `api_key` | Fastest inference; free developer tier is rate-limited |
+| `deepseek` | `provider`, `api_key` | Cheapest reasoning model — `deepseek-chat` and `deepseek-reasoner` (R1) |
 | `mistral` | `provider`, `api_key` | EU data residency (`X-InferBridge-Residency: eu`) |
 | `sarvam` | `provider`, `api_key` | Residency auto-set to `india` |
 | `self_hosted` | `provider`, `api_key`, `base_url`, `declared_region` | See below |

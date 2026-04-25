@@ -6,6 +6,60 @@ description: All user-visible changes to InferBridge, by release.
 All user-visible changes to InferBridge (formerly Agni AI) land here.
 Dates are UTC.
 
+## v0.2.3 — 2026-04-25
+
+Adds **DeepSeek** as an eighth supported provider, including the R1
+reasoning model. No breaking changes; no deprecations.
+
+### Provider — DeepSeek
+
+- New BYOK provider value: **`deepseek`**. Register a DeepSeek API
+  key at `platform.deepseek.com`, then `POST /v1/keys` with
+  `{"provider": "deepseek", "api_key": "..."}`. Residency is `global`.
+- DeepSeek exposes an OpenAI-compatible Chat Completions endpoint at
+  `https://api.deepseek.com/v1`; the adapter is a direct pass-through
+  with no request or response translation.
+- Suggested models: `deepseek-chat` (general purpose) and
+  `deepseek-reasoner` (R1 reasoning). Use either directly via
+  `X-InferBridge-Override-Model: deepseek:<model>`.
+- Pricing surfaced through `inferbridge.cost_usd` uses the published
+  per-million-token rates: `deepseek-chat` `$0.27 / $1.10` and
+  `deepseek-reasoner` `$0.55 / $2.19` for input/output respectively.
+
+### Reasoning model passthrough — `reasoning_content`
+
+`deepseek-reasoner` (R1) returns an extra `reasoning_content` field on
+each `message` (and on streaming `delta` chunks) carrying the model's
+chain-of-thought alongside the usual `content`. The InferBridge gateway
+**preserves the field verbatim** — it is not stripped, renamed, or
+translated. Clients that opt into `deepseek-reasoner` receive the
+reasoning output exactly as DeepSeek emits it.
+
+### Routing changes
+
+The static routing table slots DeepSeek into the **cheap** tier at the
+second position (after Groq, before Together). Balanced and premium
+are unchanged.
+
+| Mode | Order |
+|---|---|
+| `ib/cheap` | `groq` → `deepseek` → `together` → `sarvam` → `openai` |
+| `ib/balanced` | `openai` → `groq` → `sarvam` → `anthropic` *(unchanged)* |
+| `ib/premium` | `anthropic` → `openai` → `mistral` *(unchanged)* |
+
+If you don't have a DeepSeek key registered, the router skips the
+DeepSeek slot and proceeds down the same list — no change in behaviour
+for existing integrations until you register a DeepSeek key.
+
+### Streaming + fallback
+
+DeepSeek returns standard OpenAI-shaped SSE deltas (with the optional
+`reasoning_content` field on R1 streams); existing streaming clients
+work unchanged. Fallback budget (max 2 candidates per request,
+streaming fallback before first token only) is unchanged.
+
+---
+
 ## v0.2.2 — 2026-04-25
 
 Adds **Mistral** as a seventh supported provider, and introduces a new
