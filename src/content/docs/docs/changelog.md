@@ -6,6 +6,54 @@ description: All user-visible changes to InferBridge, by release.
 All user-visible changes to InferBridge (formerly Agni AI) land here.
 Dates are UTC.
 
+## v0.2.4 — 2026-04-25
+
+Adds **Cohere** as the ninth supported provider. No breaking changes;
+no deprecations.
+
+### Provider — Cohere
+
+- New BYOK provider value: **`cohere`**. Register a Cohere API key at
+  `dashboard.cohere.com`, then `POST /v1/keys` with
+  `{"provider": "cohere", "api_key": "..."}`. Residency is `global`.
+- The adapter targets Cohere's **v2** chat endpoint at
+  `https://api.cohere.com/v2/chat`. The path is `/chat`, *not*
+  `/chat/completions` — that's the only Cohere-specific deviation from
+  the rest of the OpenAI-shaped adapter family.
+- Suggested models: `command-r-plus` (flagship), `command-r`
+  (balanced), `command-light` (cheapest). Use any directly via
+  `X-InferBridge-Override-Model: cohere:<model>`.
+- Pricing surfaced through `inferbridge.cost_usd` uses the published
+  per-million-token rates: `command-r-plus` `$2.50 / $10.00`,
+  `command-r` `$0.15 / $0.60`, `command-light` `$0.075 / $0.30` for
+  input/output respectively.
+
+### Routing changes
+
+The static routing table slots Cohere into the **balanced** tier
+between Groq and Sarvam. Cheap and premium are unchanged — Cohere is
+not price-competitive with Groq/Together/Sarvam at the cheap tier and
+the premium tier remains reserved for Anthropic / OpenAI / Mistral
+flagships.
+
+| Mode | Order |
+|---|---|
+| `ib/cheap` | `groq` → `deepseek` → `together` → `sarvam` → `openai` *(unchanged)* |
+| `ib/balanced` | `openai` → `groq` → `cohere` → `sarvam` → `anthropic` |
+| `ib/premium` | `anthropic` → `openai` → `mistral` *(unchanged)* |
+
+If you don't have a Cohere key registered, the router skips the Cohere
+slot and proceeds down the same list — no change in behaviour for
+existing integrations until you register a Cohere key.
+
+### Streaming + fallback
+
+Cohere v2 returns standard OpenAI-shaped SSE deltas; existing
+streaming clients work unchanged. Fallback budget (max 2 candidates
+per request, streaming fallback before first token only) is unchanged.
+
+---
+
 ## v0.2.3 — 2026-04-25
 
 Adds **DeepSeek** as an eighth supported provider, including the R1
