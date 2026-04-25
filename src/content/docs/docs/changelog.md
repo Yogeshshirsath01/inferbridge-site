@@ -6,6 +6,60 @@ description: All user-visible changes to InferBridge, by release.
 All user-visible changes to InferBridge (formerly Agni AI) land here.
 Dates are UTC.
 
+## v0.2.2 — 2026-04-25
+
+Adds **Mistral** as a seventh supported provider, and introduces a new
+`eu` residency bucket. No breaking changes; no deprecations.
+
+### Provider — Mistral
+
+- New BYOK provider value: **`mistral`**. Register a Mistral API key at
+  `console.mistral.ai`, then `POST /v1/keys` with
+  `{"provider": "mistral", "api_key": "..."}`. Residency is `eu` —
+  the first non-`global`/non-`india` bucket the gateway exposes.
+- Mistral exposes an OpenAI-compatible Chat Completions endpoint at
+  `https://api.mistral.ai/v1`; the adapter is a direct pass-through
+  with no request or response translation.
+- Suggested models: `mistral-large-latest`, `mistral-small-latest`,
+  `open-mistral-nemo`. Use a model directly via
+  `X-InferBridge-Override-Model: mistral:<model>`.
+- Pricing surfaced through `inferbridge.cost_usd` uses the published
+  per-million-token rates (small `$1.00 / $3.00`, large `$2.00 / $6.00`,
+  nemo `$0.30 / $0.30` for input/output respectively).
+
+### Routing changes
+
+The static routing table slots Mistral into the **premium** tier only,
+behind the existing Anthropic + OpenAI flagships. The cheap and
+balanced tiers are unchanged.
+
+| Mode | Order |
+|---|---|
+| `ib/cheap` | `groq` → `together` → `sarvam` → `openai` *(unchanged)* |
+| `ib/balanced` | `openai` → `groq` → `sarvam` → `anthropic` *(unchanged)* |
+| `ib/premium` | `anthropic` → `openai` → `mistral` |
+
+If you don't have a Mistral key registered, the router skips the
+Mistral slot and proceeds down the same list — no change in behaviour
+for existing integrations until you register a Mistral key.
+
+### Residency — new `eu` bucket
+
+`X-InferBridge-Residency: eu` is now accepted at the chat endpoint
+and filters routing to providers in the EU residency bucket. Today
+that's only Mistral. The header continues to support `india` for
+Sarvam/self-hosted-india keys; nothing about the global default
+changes. The `residency_actual` field on the response metadata block
+and on `request_logs` rows can now also be `eu`.
+
+### Streaming + fallback
+
+Mistral returns standard OpenAI-shaped SSE deltas; existing streaming
+clients work unchanged. Fallback budget (max 2 candidates per request,
+streaming fallback before first token only) is unchanged.
+
+---
+
 ## v0.2.1 — 2026-04-25
 
 Adds **Groq** as a sixth supported provider. No breaking changes; no

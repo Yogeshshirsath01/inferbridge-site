@@ -47,7 +47,7 @@ unchanged.
 | `X-InferBridge-Cache: true` | Opt-in cache lookup + store |
 | `X-InferBridge-Cache-TTL: <seconds>` | Override cache TTL; clamped to `[60, 86400]`. Default 3600. |
 | `X-InferBridge-Override-Model: provider:model` | Bypass the tier; dispatch directly to `provider` + `model` |
-| `X-InferBridge-Residency: india` | Restrict routing to India-residency providers |
+| `X-InferBridge-Residency: <bucket>` | Restrict routing to providers in the given residency bucket. Supported values: `india`, `eu` |
 | `X-InferBridge-Timeout: <seconds>` | Per-request upstream timeout; clamped to `[1, 300]` |
 | `X-Request-ID: <token>` | Client-supplied request ID. Must match `[A-Za-z0-9_-]{1,128}`; malformed values are silently replaced with a fresh UUID. Echoed back in the response header and persisted on the log row. |
 
@@ -112,7 +112,7 @@ chunks — carries this object:
 | `cache_hit` | bool | `true` only on cache hits |
 | `latency_ms` | int | Wall-clock ms from request entry to response assembly |
 | `cost_usd` | string | USD, as a fixed-point string with six decimal places. `"0.000000"` when the upstream didn't report token counts (e.g. OpenAI streaming without `stream_options.include_usage=true`) or when the provider's pricing is unknown (`self_hosted`). Same shape as `/v1/stats` and `/v1/logs` for byte-exact aggregation. |
-| `residency_actual` | string | The residency bucket that served the request — `global`, `india`, or `cache` |
+| `residency_actual` | string | The residency bucket that served the request — `global`, `india`, `eu`, or `cache` |
 | `request_id` | string | Same value echoed in the `X-Request-ID` response header |
 
 > **Breaking change in v0.2.0.** This block used to be keyed `"agni"`.
@@ -147,7 +147,7 @@ client, errors propagate and the stream ends.
 |---|---|---|
 | 401 | `authentication_error` | Missing / bad InferBridge key |
 | 422 | `invalid_request_error` | Body validation (unknown field, bad TTL, bad override format, unknown mode, unknown override provider) |
-| 422 | `residency_error` | `X-InferBridge-Residency: india` set but no India-residency keys registered for the tier |
+| 422 | `residency_error` | `X-InferBridge-Residency` set but no keys in that residency bucket are registered for the tier |
 | 429 | `rate_limit_error` | Every candidate returned 429 (upstream-exhausted). `Retry-After` header is populated with `min(upstream retry-afters)`. |
 | 500 | `api_error` | Unhandled server error |
 | 502 | `provider_error` | Upstream 5xx / timeout after fallback exhaustion |
