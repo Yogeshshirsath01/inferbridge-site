@@ -3,7 +3,6 @@ title: Migrating from OpenAI
 description: Two-line migration from the OpenAI SDK to InferBridge — Python, Node, and cURL.
 ---
 
-
 InferBridge speaks the OpenAI Chat Completions protocol, so moving an
 existing app is almost always two lines: swap `api_key` and `base_url`.
 The model string changes too — to an InferBridge mode like
@@ -190,5 +189,5 @@ area not yet hardened — avoid routing production function-calling
 traffic through InferBridge until a future release covers it.
 
 **Where do I report a bug?**
-Email **yogesh@kwiqreply.io** with your `X-Request-ID` — every response
+Email **hello@inferbridge.dev** with your `X-Request-ID` — every response
 carries one, and it pivots directly to our log stream.

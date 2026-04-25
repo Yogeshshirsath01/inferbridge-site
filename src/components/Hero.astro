@@ -2,7 +2,7 @@
 /**
  * Hero — design doc §4.
  * Single column, centered. Badge pill → h1 → subhead → CTA row.
- * No code snippet. No image.
+ * Top-left brandmark wordmark sits in its own flow row above the badge.
  */
 import Container from "./Container.astro";
 import TextBlock from "./TextBlock.astro";
@@ -10,6 +10,23 @@ import TextBlock from "./TextBlock.astro";
 
 <section class="hero">
   <Container>
+    <div class="brandmark-row">
+      <a class="brandmark" href="/" aria-label="InferBridge home">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 38 32"
+          width="38"
+          height="32"
+          role="img"
+          aria-hidden="true"
+        >
+          <rect x="3" y="3" width="6" height="26" rx="1.5" fill="#5b6af0"></rect>
+          <rect x="16" y="3" width="5" height="26" rx="1.5" fill="#5b6af0"></rect>
+          <path d="M21 3 H27 a6.5 6.5 0 0 1 0 13 H21 z" fill="#5b6af0"></path>
+          <path d="M21 16 H28 a6.5 6.5 0 0 1 0 13 H21 z" fill="#5b6af0"></path>
+        </svg>
+      </a>
+    </div>
     <TextBlock align="center">
       <p class="badge"><span class="dot" aria-hidden="true"></span>Built in public · v0.2.0</p>
       <h1>
@@ -23,9 +40,7 @@ import TextBlock from "./TextBlock.astro";
       </p>
       <div class="ctas">
         <a class="cta-primary" href="#waitlist">Join the waitlist</a>
-        <a class="cta-secondary" href="https://github.com/Yogeshshirsath01/InferBridge#readme"
-          >Read the docs →</a
-        >
+        <a class="cta-secondary" href="/docs/">Read the docs →</a>
       </div>
     </TextBlock>
   </Container>
@@ -33,8 +48,26 @@ import TextBlock from "./TextBlock.astro";
 
 <style>
   .hero {
-    padding-block: 160px 140px;
+    padding-block: 32px 140px;
     background-color: var(--gray-950);
+  }
+
+  .brandmark-row {
+    margin-bottom: 100px;
+  }
+
+  .brandmark {
+    display: inline-flex;
+    align-items: center;
+    color: var(--accent);
+    text-decoration: none;
+    line-height: 0;
+  }
+
+  .brandmark:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 6px;
+    border-radius: 4px;
   }
 
   .badge {
@@ -112,7 +145,11 @@ import TextBlock from "./TextBlock.astro";
 
   @media (max-width: 768px) {
     .hero {
-      padding-block: 96px 80px;
+      padding-block: 24px 80px;
+    }
+
+    .brandmark-row {
+      margin-bottom: 64px;
     }
 
     .subhead {

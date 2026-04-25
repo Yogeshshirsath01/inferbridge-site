@@ -5,7 +5,6 @@ description: Error envelope shape, error type enumeration, and rate-limit behavi
 
 ## Error envelope
 
-
 Every error response follows the OpenAI shape:
 
 ```json
@@ -41,16 +40,12 @@ Every error response — and every successful one — includes an
 `X-Request-ID` response header you can correlate with `/v1/logs` rows
 and with the server's JSON log stream.
 
----
-
-
 ## Rate limits
-
 
 **None in MVP.** InferBridge currently enforces no per-user rate limits
 of its own. Upstream provider rate limits still apply and will surface
 as 429 `rate_limit_error` responses if every candidate is exhausted —
-see the [chat completions error table](#chat-completion-errors).
+see the [chat completions error table](/docs/api/chat-completions/#chat-completion-errors).
 
 Please be respectful with free-tier usage — we monitor aggregate
 traffic and may reach out to heavy users. Paid tiers (post-MVP) will

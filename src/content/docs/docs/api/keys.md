@@ -5,7 +5,6 @@ description: Register a user, register BYOK provider keys, list, and delete.
 
 ## Register a user
 
-
 Create an InferBridge account and mint an API key.
 
 ```http
@@ -41,11 +40,7 @@ curl -X POST https://inferbridge.dev/v1/users \
 | 409 | `conflict_error` | `email` is already registered |
 | 422 | `invalid_request_error` | `email` is not a valid address |
 
----
-
-
 ## Register a provider key
-
 
 Store a BYOK key for one of the supported providers. All provider keys
 are Fernet-encrypted at rest; InferBridge decrypts them only in-memory
@@ -128,11 +123,7 @@ Duplicate `self_hosted` entries are **allowed** — the unique index is
 partial — so a user can register `mumbai-llama-70b`,
 `bangalore-mistral-7b`, and `sgp-mixtral-8x7b` side-by-side.
 
----
-
-
 ## List provider keys
-
 
 ```shell
 curl https://inferbridge.dev/v1/keys \
@@ -157,11 +148,7 @@ curl https://inferbridge.dev/v1/keys \
 
 Secrets are never returned.
 
----
-
-
 ## Delete a provider key
-
 
 ```shell
 curl -X DELETE https://inferbridge.dev/v1/keys/5e4b02f9-2efb-4b69-8d6b-0a8e4e3e6ab2 \
@@ -170,6 +157,3 @@ curl -X DELETE https://inferbridge.dev/v1/keys/5e4b02f9-2efb-4b69-8d6b-0a8e4e3e6
 
 **204 No Content** — empty body.
 **404 Not Found** if the key doesn't exist or is owned by a different user.
-
----
-

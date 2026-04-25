@@ -3,7 +3,6 @@ title: Stats
 description: Per-user aggregates — totals, by mode, by provider, by residency.
 ---
 
-
 Aggregates scoped to the authenticated user over a bounded time range.
 
 ```http
@@ -56,6 +55,3 @@ Notes worth knowing:
   `by_mode` breakdown; InferBridge does not rewrite existing data, so
   `by_mode` may contain both `ib/balanced` and `agni/balanced` keys
   during the compatibility window.
-
----
-

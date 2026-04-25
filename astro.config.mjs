@@ -51,6 +51,7 @@ export default defineConfig({
         },
         {
           label: "API reference",
+          collapsed: true,
           items: [
             { label: "Authentication", link: "/docs/api/authentication/" },
             { label: "Chat completions", link: "/docs/api/chat-completions/" },

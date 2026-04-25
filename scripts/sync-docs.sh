@@ -41,14 +41,25 @@ fi
 mkdir -p "$DOCS_OUT/api"
 
 write_with_frontmatter() {
-  # $1 outfile, $2 title, $3 description, stdin = body
+  # $1 outfile, $2 title, $3 description, stdin = body.
+  # Body is normalized: leading blank lines stripped (avoids a yawning
+  # gap between frontmatter and first paragraph) and a single trailing
+  # newline guaranteed.
   local out="$1" title="$2" desc="$3"
   {
     printf -- '---\n'
     printf -- 'title: %s\n' "$title"
     printf -- 'description: %s\n' "$desc"
     printf -- '---\n\n'
-    cat
+    awk '
+      seen==0 && NF==0 { next }
+      { seen=1; lines[++n] = $0 }
+      END {
+        # Trim trailing blank lines so we end on exactly one newline.
+        while (n > 0 && lines[n] == "") n--
+        for (i = 1; i <= n; i++) print lines[i]
+      }
+    '
   } > "$out"
 }
 
@@ -72,10 +83,24 @@ extract_api_section() {
   fi
 }
 
-# Strip the first H2 line and any immediately-following blank lines so
-# the section body reads naturally under its own Starlight page title.
+# Strip the first H2 line, any immediately-following blank lines, and any
+# trailing horizontal-rule separator (`---`) plus surrounding blank lines.
+# api.md uses `---` between H2 sections; without this trim, every split
+# section ends with a stray HR that renders as a thin gray bar at the
+# bottom of the Starlight page.
 strip_leading_h2() {
-  awk 'NR==1 && /^## / { next } blank && NF==0 { next } { blank=0; print }'
+  awk '
+    NR==1 && /^## / { next }
+    seen==0 && NF==0 { next }
+    { seen=1; lines[++n] = $0 }
+    END {
+      # Trim trailing blanks, then a trailing HR, then trailing blanks again.
+      while (n > 0 && lines[n] == "") n--
+      if (n > 0 && lines[n] == "---") n--
+      while (n > 0 && lines[n] == "") n--
+      for (i = 1; i <= n; i++) print lines[i]
+    }
+  '
 }
 
 # ---------- migration ----------

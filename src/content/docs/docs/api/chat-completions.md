@@ -3,7 +3,6 @@ title: Chat completions
 description: OpenAI-compatible POST /v1/chat/completions — headers, streaming, errors.
 ---
 
-
 The main gateway endpoint. Request shape is OpenAI-compatible; the
 response carries the usual OpenAI fields plus an `inferbridge` block.
 
@@ -153,6 +152,3 @@ client, errors propagate and the stream ends.
 | 500 | `api_error` | Unhandled server error |
 | 502 | `provider_error` | Upstream 5xx / timeout after fallback exhaustion |
 | 503 | `service_unavailable_error` | Mixed upstream failures during fallback exhaustion |
-
----
-

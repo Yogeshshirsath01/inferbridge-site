@@ -3,7 +3,6 @@ title: Authentication
 description: Bearer token auth, key prefixes, and 401 responses.
 ---
 
-
 Every request outside of `POST /v1/users` is authenticated via a bearer
 token:
 
@@ -24,6 +23,3 @@ WWW-Authenticate: Bearer
 
 {"error":{"message":"invalid or missing API key","type":"authentication_error"}}
 ```
-
----
-

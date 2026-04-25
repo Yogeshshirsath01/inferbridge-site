@@ -3,7 +3,6 @@ title: Changelog
 description: All user-visible changes to InferBridge, by release.
 ---
 
-
 All user-visible changes to InferBridge (formerly Agni AI) land here.
 Dates are UTC.
 
@@ -156,14 +155,6 @@ First public release under the **Agni AI** brand. MVP feature set:
   (`test_prompts_and_completions_never_reach_log_output`) prevents
   regressions.
 
-### Ops
-
-- Docker image (multi-stage, uv-built, ~250 MB, non-root).
-- `scripts/start.sh` runs `alembic upgrade head` before `uvicorn`.
-- Railway deploy: [railway.toml](../railway.toml) + env-var reference at
-  [docs/deploy/railway-env.md](deploy/railway-env.md).
-- Rollback runbook: [docs/deploy/rollback.md](deploy/rollback.md).
-
 ### Known limitations
 
 - No streaming tool use (function calling) yet.
@@ -172,5 +163,3 @@ First public release under the **Agni AI** brand. MVP feature set:
 - No semantic cache (exact-match only).
 - No gateway-level rate limits in MVP — upstream 429s still surface via
   `rate_limit_error`.
-
-[GitHub release — placeholder](https://github.com/Yogeshshirsath01/agniai/releases)

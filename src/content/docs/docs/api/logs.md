@@ -3,7 +3,6 @@ title: Logs
 description: Reverse-chronological request logs with opaque cursor pagination.
 ---
 
-
 Reverse-chronological `request_logs` rows with opaque cursor pagination.
 
 ```http
@@ -71,6 +70,3 @@ emits a `next_cursor`. The next fetch will return
 `{"data":[], "next_cursor":null}`. A single-query implementation can't
 cheaply distinguish "exactly `limit` and no more" from "`limit` and
 maybe more", so clients walk until empty.
-
----
-
