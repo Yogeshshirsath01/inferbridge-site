@@ -27,17 +27,6 @@ Anthropic, Together, Sarvam, and your own self-hosted endpoints.
 - **[API reference](/docs/api/authentication/)** — every endpoint, every header, every response field.
 - **[Changelog](/docs/changelog/)** — releases, breaking changes, and deprecation windows.
 
-## Not yet covered here
-
-Some surface area deliberately lives outside `/docs`:
-
-- **Architecture + internal design** — see the [main repo
-  README](https://github.com/Yogeshshirsath01/InferBridge) and the
-  `docs/design/` folder in-repo.
-- **Deploy + ops runbooks** — the backend repo's `docs/deploy/` folder.
-- **Provider-specific quirks and pricing tables** — consolidated in
-  [`/docs/api/chat-completions/`](/docs/api/chat-completions/).
-
 ---
 
 *InferBridge was released as Agni AI in v0.1.0; the rename shipped in
