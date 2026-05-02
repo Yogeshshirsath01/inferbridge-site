@@ -174,6 +174,14 @@ For tier requests, InferBridge falls back to the next candidate
 (default for `ib/balanced` is OpenAI → Sarvam → Anthropic). Override
 requests get the vendor's error propagated verbatim.
 
+**What are the rate limits?**
+Free tier: **60 requests per minute** and **100,000 tokens per
+minute**, both measured over a sliding 60-second window per user.
+A 429 response includes a `Retry-After` header and a
+`limit_type` field (`"rpm"` or `"tpm"`) so you can branch on which
+budget tripped. Limits will increase on paid tiers — see the
+[rate limits section in the API docs](api.md#rate-limits).
+
 **I integrated under the old name (Agni). Do I have to change anything?**
 Not immediately. Until **2026-07-22** the gateway accepts `agni_` API
 keys, `agni/*` model names, and `X-Agni-*` headers. The one exception

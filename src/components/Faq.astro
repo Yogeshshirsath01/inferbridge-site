@@ -63,6 +63,18 @@ import TextBlock from "./TextBlock.astro";
       </details>
 
       <details>
+        <summary>What are the rate limits?</summary>
+        <p>
+          Free tier allows 60 requests per minute and 100,000 tokens per
+          minute, both measured over a sliding 60-second window per user.
+          A 429 response carries a <code>Retry-After</code> header and a
+          <code>limit_type</code> field (<code>"rpm"</code> or
+          <code>"tpm"</code>) so clients can branch on which budget
+          tripped. Limits will increase on paid tiers.
+        </p>
+      </details>
+
+      <details>
         <summary>Can I export an audit log for DPDP / GDPR?</summary>
         <p>
           Yes. <code>GET /v1/audit/export</code> returns a signed report

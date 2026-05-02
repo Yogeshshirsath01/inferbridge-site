@@ -24,6 +24,11 @@ Both date params must include a timezone offset; naive datetimes return
 422. Windows longer than 90 days return 422 — chain successive calls if
 you need a longer history.
 
+> **Retention note.** Free-tier accounts retain `request_logs` rows
+> for **30 days**. Export before the window closes — the audit
+> endpoint reads from the same table, so a row that's already aged
+> out will not appear in any signed report.
+
 ### Response shape (`format=json`)
 
 ```json

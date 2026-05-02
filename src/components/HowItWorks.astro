@@ -11,7 +11,7 @@ import TextBlock from "./TextBlock.astro";
 <Section background="raised">
   <Container>
     <TextBlock align="center">
-      <h2>Four steps. Five minutes.</h2>
+      <h2>Four steps to ship. Three more we handle.</h2>
     </TextBlock>
 
     <ol class="steps">
@@ -58,6 +58,42 @@ import TextBlock from "./TextBlock.astro";
             Monitor cost and latency at <code>/v1/stats</code>. Fallback
             and caching work automatically. Revert the two lines if
             anything breaks.
+          </p>
+        </div>
+      </li>
+
+      <li class="step">
+        <span class="num" aria-hidden="true">05</span>
+        <div class="copy">
+          <h3>DPDP audit export</h3>
+          <p>
+            Signed JSON or PDF report of every request in a window, with
+            optional residency filter. One <code>curl</code> away — same
+            data as <code>/v1/logs</code>, packaged for compliance.
+          </p>
+        </div>
+      </li>
+
+      <li class="step">
+        <span class="num" aria-hidden="true">06</span>
+        <div class="copy">
+          <h3>Per-user rate limiting</h3>
+          <p>
+            60 requests / minute and 100k tokens / minute on the free
+            tier. Every 429 carries <code>Retry-After</code> and a
+            <code>limit_type</code> field so clients can back off cleanly.
+          </p>
+        </div>
+      </li>
+
+      <li class="step">
+        <span class="num" aria-hidden="true">07</span>
+        <div class="copy">
+          <h3>Streaming cache</h3>
+          <p>
+            SSE responses cached as raw chunks. Cache hits replay
+            instantly, preserving provider-specific deltas like
+            DeepSeek's <code>reasoning_content</code>.
           </p>
         </div>
       </li>

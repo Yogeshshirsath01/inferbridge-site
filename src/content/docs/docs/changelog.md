@@ -6,6 +6,177 @@ description: All user-visible changes to InferBridge, by release.
 All user-visible changes to InferBridge (formerly Agni AI) land here.
 Dates are UTC.
 
+## v0.3.4 — 2026-05-03
+
+Documentation-only release. No API changes, no behaviour changes.
+
+- **Caching docs.** Added a dedicated "Caching" subsection under
+  `POST /v1/chat/completions` in `docs/api.md`, with a separate
+  "Streaming cache (Day 26, v0.3.3)" sub-block covering the
+  read/write semantics, the asynchronous post-`[DONE]` cache write,
+  and the known consequence that the replayed `inferbridge` meta
+  chunk reflects the original request's latency / cost / request_id.
+- **Audit retention note.** Added a callout in the `/v1/audit/export`
+  section noting that free-tier accounts retain `request_logs` rows
+  for 30 days. Export before the window closes — rows that have aged
+  out cannot appear in any signed report.
+- **Migration FAQ.** Added a "What are the rate limits?" entry to
+  `docs/migration-from-openai.md` covering the free-tier 60 rpm /
+  100k tpm limits, the `Retry-After` header, and the `limit_type`
+  branch.
+
+## v0.3.3 — 2026-05-03
+
+Adds **streaming cache** support to `POST /v1/chat/completions`. The
+existing exact-match cache (Day 6) only covered non-streaming
+responses; identical streaming requests now also opt in via
+`X-InferBridge-Cache: true` and replay from Redis on the second call.
+No breaking changes; no deprecations.
+
+### Behaviour
+
+- Streaming requests with `X-InferBridge-Cache: true` accumulate each
+  raw SSE chunk during the live response (yield-first, append-second
+  so caching never delays first-byte) and write the chunk list to
+  Redis after the `[DONE]` sentinel ships. The write is fire-and-forget
+  via `asyncio.create_task` — the live request never waits.
+- Subsequent identical streaming requests replay the cached chunks
+  immediately as SSE, then emit `data: [DONE]\n\n`. Provider is not
+  called; no fallback chain is opened; no upstream cost is charged.
+- Streaming and non-streaming caches are keyed separately. The cache
+  key now hashes `(provider, model, messages, params, stream)` —
+  same digest function, one extra input. A streaming request can
+  never deserialize a non-streaming entry as a chunk list and vice
+  versa, even when every other input matches.
+
+### Logging
+
+Streaming cache hits log a row with:
+
+| Field | Value |
+|---|---|
+| `status` | `cache_hit` |
+| `provider` | `cache` |
+| `model` | `<orig_provider>:<orig_model>` (parsed from cached meta) |
+| `input_tokens` / `output_tokens` | `0` |
+| `cost_usd` | `0.000000` |
+| `cache_hit` | `true` |
+
+Distinct from the non-streaming cache hit shape (which logs `None`
+tokens) — the Day 26 spec asks for explicit zero counts on streaming.
+
+### Implementation
+
+- New module-level functions in `app.core.cache`:
+  - `write_stream_cache(redis_client, key, chunks, ttl_seconds)` —
+    JSON-array-of-strings storage, fail-soft on Redis errors.
+  - `read_stream_cache(redis_client, key)` — returns `list[str] | None`,
+    fail-soft on Redis errors and on entries that aren't a flat list
+    of strings.
+- `cache.cache_key(...)` now requires a `stream: bool` keyword arg.
+  Internal callers pass `False` for non-streaming and `True` for
+  streaming. External library users are extremely rare for this
+  helper, but any in-tree forks need to update their call sites.
+- `app/api/chat.py` `_sse_body` accumulates chunk JSON in memory
+  (yield-then-append order) and schedules the write after `[DONE]`.
+  Failures from the fire-and-forget write surface via a `done_callback`
+  to the gateway log — they never escalate to the client.
+
+### Known consequence
+
+The cached chunk list includes the gateway's own meta chunk (the
+final pre-`[DONE]` chunk carrying the `inferbridge` block). On
+replay, that meta chunk's `latency_ms`, `cost_usd`, `request_id`
+reflect the **original** request, not the cache-hit replay. The
+log row is correct (`status=cache_hit`, `cost=0`); the wire-level
+meta is not. Clients that need fresh meta should ignore the
+`inferbridge` block on responses they recognize as cached (e.g.
+unrealistically low latency for the mode).
+
+---
+
+## v0.3.2 — 2026-05-02
+
+Internal cleanup release — no API changes, no behaviour changes.
+
+- Migrated every `HTTP_422_UNPROCESSABLE_ENTITY` reference to the new
+  `HTTP_422_UNPROCESSABLE_CONTENT` name across the API modules.
+  Starlette deprecated the old constant; the value (`422`) is
+  unchanged so wire behaviour is identical.
+- `alembic.ini`: added `path_separator = os` so Alembic stops
+  emitting a deprecation warning on every test boot.
+- `pyproject.toml`: scoped `filterwarnings` entry under
+  `[tool.pytest.ini_options]` to silence FastAPI's own internal use
+  of the deprecated 422 constant. The filter targets `fastapi.*`
+  only — DeprecationWarnings from our own code still surface.
+- Net result: pytest run goes from 92 warnings to **0**.
+
+## v0.3.1 — 2026-04-25
+
+Adds **per-user rate limiting** on the chat completions endpoint. No
+breaking changes; no deprecations.
+
+### Per-user RPM and TPM limits
+
+- Free-tier defaults: **60 requests / minute** and **100,000 tokens /
+  minute**, both measured over a sliding 60-second window keyed by
+  `user_id`. The same limits apply to every account today; tier-aware
+  limits will land alongside paid plans.
+- When either budget trips, `POST /v1/chat/completions` returns
+  **429 Too Many Requests** with the standard error envelope plus a
+  new `limit_type` field (`"rpm"` or `"tpm"`) so callers can branch
+  on which budget tripped:
+
+  ```json
+  {
+    "error": {
+      "message": "rate limit exceeded — try again in 28 seconds",
+      "type": "rate_limit_error",
+      "limit_type": "rpm"
+    }
+  }
+  ```
+
+- New response headers on the 429: `Retry-After: <seconds>`,
+  `X-RateLimit-Limit-RPM: 60`, `X-RateLimit-Limit-TPM: 100000`.
+  `Retry-After` is always rounded up so a client retrying at exactly
+  that delay can't bounce back into another 429.
+
+### Distinct from upstream 429
+
+The existing all-providers-rate-limited 429 (when every fallback
+candidate returns 429 from the upstream) keeps its current shape and
+does NOT include `limit_type`. The new per-user 429 fires earlier in
+the request — before any provider call — so a rate-limited caller
+never burns provider quota.
+
+### Implementation
+
+- New module `app.core.rate_limiter` — sliding-window limiter backed
+  by Redis sorted sets. No Lua scripts, no third-party rate-limit
+  library; stays consistent with the rest of the codebase.
+- New module `app.core.token_estimator` — pre-flight `len(content)
+  // 4` heuristic for the TPM check. Coarse on purpose; the real
+  per-tokenizer count is unavailable before dispatch.
+- **Redis-down policy: degrade open.** If Redis is unreachable, the
+  limiter logs a warning and admits the request — same posture as
+  `app.core.cache`. Rate-limit precision is not worth a global outage
+  during a Redis hiccup.
+
+### Configuration
+
+Three new optional `Settings` fields (all environment-overridable):
+
+| Env var | Default | Notes |
+|---|---:|---|
+| `RATE_LIMIT_ENABLED` | `true` | Global kill-switch. Set to `false` in dev/staging when iterating. |
+| `RATE_LIMIT_RPM` | `60` | Requests / minute per user. |
+| `RATE_LIMIT_TPM` | `100000` | Estimated input tokens / minute per user. |
+
+Documented in [api.md § Rate limits](api.md#rate-limits).
+
+---
+
 ## v0.3.0 — 2026-04-25
 
 Adds the **DPDP audit export** endpoint — a signed compliance report of

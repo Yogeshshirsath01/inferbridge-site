@@ -42,11 +42,47 @@ and with the server's JSON log stream.
 
 ## Rate limits
 
-**None in MVP.** InferBridge currently enforces no per-user rate limits
-of its own. Upstream provider rate limits still apply and will surface
-as 429 `rate_limit_error` responses if every candidate is exhausted —
-see the [chat completions error table](/docs/api/chat-completions/#chat-completion-errors).
+InferBridge enforces two sliding-window limits per user, both measured
+over a rolling 60-second window:
 
-Please be respectful with free-tier usage — we monitor aggregate
-traffic and may reach out to heavy users. Paid tiers (post-MVP) will
-add explicit per-user limits.
+| Limit | Free tier | Header on 429 |
+|---|---:|---|
+| Requests per minute (RPM) | **60** | `X-RateLimit-Limit-RPM: 60` |
+| Tokens per minute (TPM)   | **100,000** | `X-RateLimit-Limit-TPM: 100000` |
+
+The TPM check uses a pre-flight estimate of `len(content) // 4` summed
+across every message in the request — a coarse heuristic that
+under-counts dense content (code, non-Latin script). Output tokens
+don't count toward TPM because they aren't known until the upstream
+finishes generating.
+
+When either limit is exhausted the gateway responds with **429
+Too Many Requests** and the following envelope:
+
+```json
+{
+  "error": {
+    "message": "rate limit exceeded — try again in 28 seconds",
+    "type": "rate_limit_error",
+    "limit_type": "rpm"
+  }
+}
+```
+
+`limit_type` is `"rpm"` or `"tpm"` so callers can branch on which
+budget tripped. Headers on the 429:
+
+* `Retry-After: <seconds>` — when the oldest entry in the offending
+  window expires. Always rounded up so a retry at exactly that delay
+  cannot bounce again.
+* `X-RateLimit-Limit-RPM`, `X-RateLimit-Limit-TPM` — the configured
+  budget for context.
+
+This per-user limiter is distinct from the upstream-provider 429 the
+gateway surfaces when *every* candidate model returns 429 (see the
+[chat completions error table](/docs/api/chat-completions/#chat-completion-errors));
+both shapes use `type: rate_limit_error`, but only the per-user case
+includes `limit_type`.
+
+> **Heads-up — paid tiers.** Free-tier limits apply to every account
+> today. When paid plans land, limits will be looked up per user.

@@ -141,6 +141,70 @@ Fallback behavior during streaming: if the primary candidate errors
 transparently. After the first token has already been sent to the
 client, errors propagate and the stream ends.
 
+### Caching
+
+Caching is opt-in via `X-InferBridge-Cache: true`. The cache is
+content-addressed: identical
+`(provider, model, messages, determinism_params, stream)` inputs share
+a single Redis entry; user identity is **not** part of the key (so two
+callers asking the same question still both benefit from the cache).
+Non-determinism-affecting fields (`user`, `metadata`, `n`, etc.) are
+dropped before hashing so trivially-different requests still collide.
+
+```shell
+curl -X POST https://api.inferbridge.dev/v1/chat/completions \
+  -H 'Authorization: Bearer ib_...' \
+  -H 'Content-Type: application/json' \
+  -H 'X-InferBridge-Cache: true' \
+  -H 'X-InferBridge-Cache-TTL: 600' \
+  -d '{
+    "model": "ib/balanced",
+    "messages": [{"role":"user","content":"Define DPDP in one line."}]
+  }'
+```
+
+* **Default TTL** is `3600` seconds; override via
+  `X-InferBridge-Cache-TTL`. Values are clamped to `[60, 86400]`.
+* **Cache hits** carry `inferbridge.cache_hit: true`,
+  `inferbridge.provider: "cache"`, and `cost_usd: "0.000000"`. Stored
+  responses are byte-equivalent to the original on the body fields the
+  client cares about (`id`, `choices`, `usage`).
+* **Fallback safety.** If the primary candidate fails and a fallback
+  serves the response, the entry is keyed against the *served-by*
+  provider, not the primary. The next request finds the primary's slot
+  empty and re-attempts the primary instead of replaying a fallback
+  forever.
+
+#### Streaming cache (Day 26, v0.3.3)
+
+Streaming requests cache identically: send `X-InferBridge-Cache: true`
+on a `"stream": true` request. The first call goes to the provider
+and streams chunks live to the client; the gateway accumulates each
+raw SSE chunk in memory (yield-first, append-second so caching never
+delays first-byte) and writes the chunk list to Redis asynchronously
+**after** `data: [DONE]` ships.
+
+The second identical request replays the cached chunks immediately
+as SSE — no provider call, no fallback, no upstream cost — followed
+by a fresh `data: [DONE]`. Provider-specific delta fields are stored
+verbatim, so DeepSeek-R1's `reasoning_content` survives the round
+trip unchanged.
+
+Watch-items:
+
+* The streaming and non-streaming caches are **separate**: `stream`
+  participates in the cache key. A streaming request can never
+  deserialize a non-streaming entry as a chunk list, and vice versa.
+* The first streaming request always reaches the provider — the cache
+  is populated *after* `[DONE]`, not before. Two simultaneous calls
+  for the same prompt will both stream live; the second one populates
+  no faster than the first.
+* The cached `inferbridge` meta chunk replays with the **original**
+  request's `latency_ms` / `cost_usd` / `request_id` (per the
+  raw-chunk-replay design). The matching `request_logs` row, however,
+  is correctly tagged `status="cache_hit"` with `cost_usd=0` so
+  observability tooling sees the real picture.
+
 ### Chat completion errors
 
 | Status | `type` | When |
