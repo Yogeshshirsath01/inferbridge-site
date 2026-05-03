@@ -1,0 +1,515 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Container from "../../components/Container.astro";
+import Section from "../../components/Section.astro";
+import TextBlock from "../../components/TextBlock.astro";
+import Footer from "../../components/Footer.astro";
+
+const title = "LLM Infrastructure for Indian Fintech — InferBridge";
+const description =
+  "DPDP-compliant LLM routing for Indian banks, fintechs, and healthtech teams. India-residency providers, signed audit export, zero prompt storage. Drop-in OpenAI-compatible API.";
+const canonical = "https://www.inferbridge.dev/solutions/india-fintech";
+---
+
+<Layout title={title} description={description} canonical={canonical}>
+  <main>
+    <Section>
+      <Container>
+        <TextBlock align="center">
+          <p class="eyebrow">Solutions · India</p>
+          <h1>LLM infrastructure built for Indian compliance</h1>
+          <p class="subhead">
+            Route inference traffic to India-residency providers, generate
+            signed DPDP audit reports, and guarantee prompts never leave
+            your compliance boundary. Two lines to integrate.
+          </p>
+          <div class="ctas">
+            <a class="cta-primary" href="/docs/getting-started/"
+              >Get started free</a
+            >
+            <a class="cta-secondary" href="/security">Read the security page →</a>
+          </div>
+        </TextBlock>
+      </Container>
+    </Section>
+
+    <Section background="raised">
+      <Container>
+        <TextBlock align="center">
+          <h2>The compliance problem with LLMs</h2>
+        </TextBlock>
+        <ol class="cards">
+          <li class="card">
+            <span class="num" aria-hidden="true">01</span>
+            <h3>Inference traffic leaves India by default</h3>
+            <p>
+              Most LLM APIs route to US or EU datacenters. Under DPDP,
+              processing personal data outside India requires explicit
+              user consent and contractual safeguards — easy to overlook,
+              hard to evidence after the fact.
+            </p>
+          </li>
+          <li class="card">
+            <span class="num" aria-hidden="true">02</span>
+            <h3>Vendor logs hold personal data</h3>
+            <p>
+              Standard LLM providers log prompts for abuse detection and
+              model improvement. Prompts from Indian users frequently
+              contain Aadhaar numbers, PAN details, KYC documents, and
+              financial records that don't belong in a third-party log
+              archive.
+            </p>
+          </li>
+          <li class="card">
+            <span class="num" aria-hidden="true">03</span>
+            <h3>"Trust us" is not an audit trail</h3>
+            <p>
+              DPDP's audit-trail requirement means you need evidence of
+              what was processed, when, and where — not just promises
+              from your vendor's compliance team.
+            </p>
+          </li>
+        </ol>
+      </Container>
+    </Section>
+
+    <Section>
+      <Container>
+        <TextBlock align="center">
+          <h2>What InferBridge does differently</h2>
+        </TextBlock>
+        <ol class="cards cards-solution">
+          <li class="card">
+            <span class="num" aria-hidden="true">01</span>
+            <h3>India-residency routing</h3>
+            <p>
+              <code>X-InferBridge-Residency: india</code> routes
+              exclusively to <strong>Sarvam</strong> and
+              <strong>Krutrim</strong> — both operating within Indian
+              infrastructure — plus any <code>self_hosted</code>
+              endpoint you've registered with
+              <code>declared_region: "india"</code>. No US or EU
+              datacenter involvement for flagged requests; if the tier
+              has no India provider available, the request fails fast
+              with 422 rather than silently falling back.
+            </p>
+          </li>
+          <li class="card">
+            <span class="num" aria-hidden="true">02</span>
+            <h3>Zero prompt storage</h3>
+            <p>
+              InferBridge logs metadata only: provider, model, tokens,
+              cost, latency, residency. Prompt text and completion text
+              are never written to disk. The invariant is enforced by an
+              automated test that fails CI if any log line ever contains
+              prompt content. See the
+              <a href="/security">security page</a> for the test name and
+              file location.
+            </p>
+          </li>
+          <li class="card">
+            <span class="num" aria-hidden="true">03</span>
+            <h3>Signed audit export</h3>
+            <p>
+              <code>GET /v1/audit/export</code> generates a SHA-256-signed
+              report of every request — provider, residency, timestamp,
+              token counts. Export as JSON or PDF, filter by residency
+              zone, and verify the signature independently with a
+              four-line Python snippet — no InferBridge SDK needed on
+              the auditor's side.
+            </p>
+          </li>
+          <li class="card">
+            <span class="num" aria-hidden="true">04</span>
+            <h3>BYOK encryption at rest</h3>
+            <p>
+              Your provider API keys are Fernet-encrypted (AES-128-CBC +
+              HMAC-SHA256) at rest. Decrypted in memory only at request
+              time, used for the upstream call, and discarded. Never
+              stored in plaintext, never returned in API responses.
+            </p>
+          </li>
+        </ol>
+      </Container>
+    </Section>
+
+    <Section background="raised">
+      <Container>
+        <TextBlock align="center">
+          <h2>Two lines to integrate</h2>
+          <p class="intro">
+            Same OpenAI SDK. Swap the base URL, your key, and the
+            residency header — your prompts, parameters, and parsing
+            stay identical.
+          </p>
+        </TextBlock>
+        <div class="code-block">
+          <div class="chrome" aria-hidden="true">
+            <span class="light l1"></span>
+            <span class="light l2"></span>
+            <span class="light l3"></span>
+          </div>
+          <pre><code><span class="line cmt"># Before</span>
+<span class="line">from openai import OpenAI</span>
+<span class="line removed">client = OpenAI(api_key="sk-...")</span>
+<span class="line"></span>
+<span class="line cmt"># After — change these two lines, add the residency header per call</span>
+<span class="line">from openai import OpenAI</span>
+<span class="line">client = OpenAI(</span>
+<span class="line added">    api_key="ib_your_key_here",</span>
+<span class="line added">    base_url="https://api.inferbridge.dev/v1",</span>
+<span class="line">)</span>
+<span class="line"></span>
+<span class="line">resp = client.chat.completions.create(</span>
+<span class="line">    model="ib/balanced",</span>
+<span class="line">    messages=[&lbrace;"role": "user", "content": "..."&rbrace;],</span>
+<span class="line added">    extra_headers=&lbrace;"X-InferBridge-Residency": "india"&rbrace;,</span>
+<span class="line">)</span></code></pre>
+        </div>
+        <TextBlock align="center">
+          <p class="caption">
+            Drop the residency header to fall back to global routing on
+            the same key. No code split between the two paths.
+          </p>
+        </TextBlock>
+      </Container>
+    </Section>
+
+    <Section>
+      <Container>
+        <div class="cta-box">
+          <h2>Free tier, no credit card</h2>
+          <p>
+            Free tier includes unlimited BYOK, DPDP audit export, and
+            India-residency routing. Rate limits apply (60 requests /
+            minute, 100k tokens / minute) and scale on paid plans.
+          </p>
+          <div class="cta-row">
+            <a class="cta-primary" href="/docs/getting-started/"
+              >Get started free</a
+            >
+            <a class="cta-secondary" href="/security"
+              >Read the security page →</a
+            >
+          </div>
+        </div>
+      </Container>
+    </Section>
+
+    <Section>
+      <Container>
+        <p class="legal">
+          InferBridge is not a law firm and this page is not legal advice.
+          Consult your compliance team for DPDP-specific obligations.
+        </p>
+      </Container>
+    </Section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .eyebrow {
+    color: var(--accent-text);
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    font-weight: 500;
+    letter-spacing: var(--ls-caption);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    margin-bottom: 24px;
+  }
+
+  .subhead {
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--gray-300);
+    line-height: 1.5;
+    max-width: 640px;
+    margin-inline: auto;
+    margin-bottom: 40px;
+  }
+
+  .ctas {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  /* CTA buttons mirror Hero.astro values exactly so the visual weight
+   * lands the same way the landing page does. Keeping the rule local
+   * (rather than promoting to global.css) so a future tweak to the
+   * Hero CTA doesn't cascade unexpectedly. */
+  .cta-primary {
+    background-color: var(--accent);
+    color: var(--gray-50);
+    padding: 12px 28px;
+    border-radius: 8px;
+    /* 19px + 700 → AA Large (3:1); gray-50 on accent is 4.04:1. */
+    font-weight: 700;
+    font-size: 1.1875rem;
+    transition: background-color var(--transition);
+  }
+
+  .cta-primary:hover {
+    background-color: #6e7bf5;
+    text-decoration: none;
+  }
+
+  .cta-secondary {
+    color: var(--gray-300);
+    padding: 12px 8px;
+    font-weight: 500;
+    font-size: var(--fs-body);
+    transition: color var(--transition);
+  }
+
+  .cta-secondary:hover {
+    color: var(--gray-50);
+    text-decoration: none;
+  }
+
+  /* Problem + Solution card grid */
+  h2 {
+    margin-bottom: 48px;
+  }
+
+  .intro {
+    color: var(--gray-300);
+    font-size: var(--fs-body);
+    max-width: 600px;
+    margin-block: 20px 0;
+    margin-inline: auto;
+  }
+
+  .cards {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: var(--container-max);
+    margin-inline: auto;
+  }
+
+  .cards-solution {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 920px;
+  }
+
+  .card {
+    background-color: var(--gray-800);
+    border: 1px solid var(--gray-700);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    font-weight: 500;
+    color: var(--accent-text);
+    letter-spacing: var(--ls-caption);
+  }
+
+  .card h3 {
+    font-size: 1.125rem;
+    line-height: 1.3;
+  }
+
+  .card p {
+    color: var(--gray-300);
+    font-size: var(--fs-body-sm);
+    line-height: var(--lh-body-sm);
+  }
+
+  .card code {
+    background-color: var(--gray-900);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent-text);
+    font-size: 0.85em;
+  }
+
+  .card a {
+    color: var(--accent-text);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .card strong {
+    color: var(--gray-50);
+    font-weight: 600;
+  }
+
+  /* Code block — mirrors CodeMigration's chrome shape but no tabs. */
+  .code-block {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    background-color: var(--gray-800);
+    border: 1px solid var(--gray-700);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .chrome {
+    height: 40px;
+    background-color: var(--gray-900);
+    border-bottom: 1px solid var(--gray-700);
+    display: flex;
+    align-items: center;
+    padding-inline: 16px;
+    gap: 8px;
+  }
+
+  .light {
+    inline-size: 12px;
+    block-size: 12px;
+    border-radius: 50%;
+  }
+
+  .l1 { background-color: #ff5f57; }
+  .l2 { background-color: #febc2e; }
+  .l3 { background-color: #28c841; }
+
+  .code-block pre {
+    margin: 0;
+    padding: 20px 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-code-block);
+    line-height: var(--lh-code-block);
+    color: var(--gray-100);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    counter-reset: line;
+  }
+
+  .code-block code {
+    display: block;
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  .line {
+    display: block;
+    padding-inline: 60px 20px;
+    position: relative;
+    counter-increment: line;
+    white-space: pre;
+  }
+
+  .line::before {
+    content: counter(line);
+    position: absolute;
+    inset-inline-start: 0;
+    inline-size: 40px;
+    padding-inline-end: 12px;
+    text-align: right;
+    color: var(--gray-500);
+    opacity: 0.5;
+    border-right: 1px solid var(--gray-700);
+    user-select: none;
+  }
+
+  .line.cmt {
+    color: var(--gray-300);
+  }
+
+  .line.removed {
+    background-color: rgba(255, 0, 0, 0.06);
+    box-shadow: inset 3px 0 0 rgba(255, 100, 100, 0.45);
+  }
+
+  .line.added {
+    background-color: rgba(91, 106, 240, 0.08);
+    box-shadow: inset 3px 0 0 rgba(91, 106, 240, 0.55);
+  }
+
+  .caption {
+    color: var(--gray-300);
+    font-size: var(--fs-caption);
+    text-align: center;
+    margin-block-start: 20px;
+    letter-spacing: var(--ls-caption);
+  }
+
+  /* CTA callout box */
+  .cta-box {
+    background-color: var(--accent-dim);
+    border: 1px solid var(--accent-muted);
+    border-radius: 12px;
+    padding: 40px 32px;
+    text-align: center;
+    max-width: 720px;
+    margin-inline: auto;
+  }
+
+  .cta-box h2 {
+    margin-bottom: 16px;
+  }
+
+  .cta-box p {
+    color: var(--gray-300);
+    font-size: var(--fs-body);
+    line-height: 1.55;
+    max-width: 520px;
+    margin-inline: auto;
+    margin-bottom: 28px;
+  }
+
+  .cta-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Legal disclaimer */
+  .legal {
+    color: var(--gray-300);
+    font-size: var(--fs-caption);
+    letter-spacing: var(--ls-caption);
+    text-align: center;
+    max-width: 720px;
+    margin-inline: auto;
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .cards {
+      grid-template-columns: 1fr;
+    }
+
+    .cards-solution {
+      grid-template-columns: 1fr;
+    }
+
+    .ctas {
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .cta-primary,
+    .cta-secondary {
+      inline-size: 100%;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .line {
+      padding-inline: 12px;
+    }
+    .line::before {
+      display: none;
+    }
+  }
+</style>

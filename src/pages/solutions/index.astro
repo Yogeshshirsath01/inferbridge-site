@@ -1,0 +1,33 @@
+---
+/**
+ * /solutions/ — redirects to the only solutions page we have today.
+ *
+ * When a second solutions page lands (e.g. healthtech, ecommerce),
+ * replace this with a real index that lists them. Until then,
+ * /solutions/ landing on a redirect is more honest than landing on
+ * a "coming soon" placeholder.
+ *
+ * Same shape as /status: meta-refresh fires before render, robots
+ * noindex so the redirect doesn't compete with the destination in
+ * search results.
+ */
+const target = "/solutions/india-fintech/";
+const canonical = "https://www.inferbridge.dev/solutions/india-fintech";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <meta name="robots" content="noindex,follow" />
+    <link rel="canonical" href={canonical} />
+    <title>Solutions — InferBridge</title>
+  </head>
+  <body>
+    <p>
+      Redirecting to <a href={target}>{target}</a>…
+    </p>
+  </body>
+</html>
