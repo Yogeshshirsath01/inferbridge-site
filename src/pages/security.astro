@@ -1,0 +1,300 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Container from "../components/Container.astro";
+import Footer from "../components/Footer.astro";
+
+const title = "Security — InferBridge";
+const description =
+  "How InferBridge handles key encryption, API authentication, data residency, and the content-never-logged invariant.";
+const canonical = "https://www.inferbridge.dev/security";
+---
+
+<Layout title={title} description={description} canonical={canonical}>
+  <main class="page">
+    <Container>
+      <header class="masthead">
+        <a class="back" href="/">← Back to home</a>
+      </header>
+
+      <article class="doc">
+        <header class="doc-header">
+          <h1>Security</h1>
+          <p class="lede">{description}</p>
+        </header>
+
+        <section class="prose" aria-labelledby="byok">
+          <h2 id="byok">Bring Your Own Keys</h2>
+          <p>
+            InferBridge never stores your provider API keys in plaintext.
+            All BYOK keys are encrypted at rest using <strong>Fernet</strong>
+            symmetric encryption (AES-128-CBC with HMAC-SHA256 for
+            authentication) before being written to the database.
+          </p>
+          <p>
+            The Fernet key itself is validated at server boot. If
+            <code>INFERBRIDGE_ENCRYPTION_KEY</code> is missing or malformed,
+            startup hard-fails with a <code>RuntimeError</code> rather than
+            running with broken crypto.
+          </p>
+          <p>
+            Provider keys are never returned in API responses.
+            <code>GET /v1/keys</code> returns key metadata
+            (<code>id</code>, <code>provider</code>, <code>residency</code>,
+            <code>declared_region</code>, <code>label</code>,
+            <code>created_at</code>) but the secret itself is excluded from
+            the response shape entirely.
+          </p>
+          <p>
+            Keys are decrypted in memory only at request time, used for the
+            single upstream provider call, and immediately discarded when
+            the request completes.
+          </p>
+        </section>
+
+        <section class="prose" aria-labelledby="api-auth">
+          <h2 id="api-auth">API Key Authentication</h2>
+          <p>
+            InferBridge API keys (<code>ib_</code> prefix) are stored as
+            <strong>SHA-256 hashes</strong>, not in plaintext. The raw secret
+            is 32 base62 characters, giving roughly 190 bits of entropy.
+          </p>
+          <p>
+            SHA-256 is appropriate for this use case. Unlike user passwords,
+            machine-generated tokens with this much entropy gain no
+            additional security from a slow-hashing function like bcrypt or
+            Argon2 — those defend against guessing low-entropy inputs, which
+            isn't the threat model here.
+          </p>
+          <p>
+            Key comparison uses <code>hmac.compare_digest</code> to defeat
+            timing side-channels, even though the entropy already makes a
+            timing attack impractical.
+          </p>
+          <p>
+            Keys are shown once at creation and never again. If you lose a
+            key, register a new user; we cannot recover the original.
+          </p>
+        </section>
+
+        <section class="prose" aria-labelledby="content-privacy">
+          <h2 id="content-privacy">Prompt and Completion Privacy</h2>
+          <p>
+            InferBridge logs request <em>metadata</em> only: provider, model,
+            mode, input/output token counts, cost, latency, status, residency,
+            and request ID. Prompt text and completion text are never written
+            to logs and never stored in the database.
+          </p>
+          <p>
+            This invariant is enforced by an automated test —
+            <code>test_prompts_and_completions_never_reach_log_output</code>
+            in <code>tests/test_chat_api.py</code> — that runs on every
+            commit. It plants sentinel strings in both the prompt and the
+            mocked upstream response, drives a real chat request through the
+            FastAPI app, and asserts that neither sentinel appears in any
+            captured log record. If any future change leaks content into a
+            log line, CI fails.
+          </p>
+          <p>
+            The motivation is DPDP and GDPR compliance: prompts frequently
+            contain personal data — names, email addresses, support-ticket
+            details, medical context — and treating "log volumes" as a
+            regulated dataset is a much larger operational burden than
+            simply not capturing the content in the first place.
+          </p>
+        </section>
+
+        <section class="prose" aria-labelledby="residency">
+          <h2 id="residency">Data Residency</h2>
+          <p>
+            The InferBridge API runs on Railway in the
+            <strong>Mumbai region</strong>. Request metadata logs, encrypted
+            BYOK keys, and user records are stored in this region.
+          </p>
+          <p>
+            For inference traffic, the
+            <code>X-InferBridge-Residency</code> header restricts routing to
+            providers operating in the requested zone. If no provider in a
+            tier satisfies the residency constraint, the request fails fast
+            with a 422 <code>residency_error</code> rather than silently
+            falling back to a provider in another region.
+          </p>
+          <p>The available residency zones map as follows:</p>
+          <ul>
+            <li>
+              <code>india</code> — Sarvam, Krutrim, and any
+              <code>self_hosted</code> endpoint registered with
+              <code>declared_region: "india"</code>.
+            </li>
+            <li>
+              <code>eu</code> — Mistral.
+            </li>
+            <li>
+              <code>global</code> — OpenAI, Anthropic, Together, Groq,
+              DeepSeek, Cohere.
+            </li>
+          </ul>
+        </section>
+
+        <section class="prose" aria-labelledby="transport">
+          <h2 id="transport">Transport Security</h2>
+          <p>
+            All InferBridge API endpoints require HTTPS. TLS certificates
+            are managed by Railway and renewed automatically via
+            Let's Encrypt.
+          </p>
+          <p>
+            For BYOK <code>self_hosted</code> entries, plain HTTP
+            <code>base_url</code> values are rejected at registration time
+            unless the host is <code>localhost</code> (or
+            <code>*.localhost</code>), or resolves to a loopback, private,
+            or link-local IP address. This guards against a misconfiguration
+            that would route gateway traffic to a plaintext upstream over
+            the open internet, while leaving the dev-loop usable when the
+            target is something like
+            <code>http://localhost:11434</code> for a local Ollama instance.
+          </p>
+        </section>
+
+        <section class="prose" aria-labelledby="audit">
+          <h2 id="audit">DPDP Audit Export</h2>
+          <p>
+            <code>GET /v1/audit/export</code> generates a tamper-evident
+            report of all request metadata for a given date range, signed
+            with SHA-256.
+          </p>
+          <p>
+            The signature is computed over the canonical serialization of
+            the report body (sorted keys, no whitespace, signature key
+            removed before hashing). A four-line Python verifier in the
+            documentation lets auditors re-derive the digest independently,
+            without trusting InferBridge or the SDK.
+          </p>
+          <p>
+            Reports can be filtered by residency zone and exported as JSON
+            or PDF. Both formats include the same signature, surfaced both
+            in the body and in the
+            <code>X-InferBridge-Audit-Signature</code> response header so
+            it can be archived separately from the body itself. Free-tier
+            accounts retain <code>request_logs</code> rows for 30 days;
+            export before the window closes for compliance records that
+            need to outlive that.
+          </p>
+          <p>
+            Full reference:
+            <a href="/docs/api/audit/">/docs/api/audit/</a>.
+          </p>
+        </section>
+
+        <section class="prose" aria-labelledby="disclosure">
+          <h2 id="disclosure">Responsible Disclosure</h2>
+          <p>
+            Found a security issue? Email
+            <a href="mailto:hello@inferbridge.dev?subject=Security%3A%20"
+              >hello@inferbridge.dev</a
+            > with <code>Security:</code> in the subject line.
+          </p>
+          <p>
+            We aim to acknowledge reports within 48 hours. Please do not
+            publicly disclose issues before we have had a chance to address
+            them.
+          </p>
+        </section>
+      </article>
+    </Container>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .page {
+    padding-block: 32px 96px;
+    background-color: var(--gray-950);
+    min-height: 100vh;
+  }
+
+  .masthead {
+    margin-bottom: 32px;
+  }
+
+  .back {
+    color: var(--gray-300);
+    font-size: var(--fs-body-sm);
+    transition: color var(--transition);
+  }
+
+  .back:hover {
+    color: var(--accent-text);
+    text-decoration: none;
+  }
+
+  .doc {
+    max-width: var(--text-max);
+  }
+
+  .doc-header {
+    margin-bottom: 48px;
+    padding-block-end: 24px;
+    border-block-end: 1px solid var(--gray-700);
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+
+  .lede {
+    color: var(--gray-300);
+    font-size: 1.125rem;
+    line-height: 1.55;
+    max-width: 640px;
+  }
+
+  .prose {
+    color: var(--gray-100);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+  }
+
+  .prose h2 {
+    font-size: 1.625rem;
+    line-height: 1.3;
+    margin-block: 40px 16px;
+  }
+
+  .prose p {
+    margin-bottom: 24px;
+  }
+
+  .prose ul {
+    margin-block: 0 24px;
+    padding-inline-start: 28px;
+  }
+
+  .prose li {
+    margin-block: 6px;
+  }
+
+  .prose code {
+    background-color: var(--gray-800);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent-text);
+    font-size: 0.92em;
+  }
+
+  .prose a {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .prose strong {
+    color: var(--gray-50);
+    font-weight: 600;
+  }
+
+  .prose em {
+    font-style: italic;
+  }
+</style>
