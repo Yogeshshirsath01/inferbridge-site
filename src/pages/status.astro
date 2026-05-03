@@ -14,7 +14,12 @@
  * a page that immediately leaves the SPA wastes ~150KB of weight on
  * a single visit. Inline minimum HTML, ship.
  */
-const target = "https://uptime.inferbridge.dev";
+// UptimeRobot's free tier doesn't include custom-domain status pages, so
+// we point at the canonical hosted URL and route every user-facing link
+// through ``/status`` on our own domain. If we move to a paid plan later
+// (or migrate to a provider whose free tier does include custom
+// subdomains), this single constant is the only thing that changes.
+const target = "https://stats.uptimerobot.com/FUyk5rpW2h";
 ---
 
 <!doctype html>
