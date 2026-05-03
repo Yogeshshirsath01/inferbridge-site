@@ -28,7 +28,16 @@ import TextBlock from "./TextBlock.astro";
       </a>
     </div>
     <TextBlock align="center">
-      <p class="badge"><span class="dot" aria-hidden="true"></span>Built in public · v0.3.4</p>
+      <div class="badges">
+        <p class="badge"><span class="dot" aria-hidden="true"></span>Built in public · v0.3.4</p>
+        <a
+          class="status-badge"
+          href="https://uptime.inferbridge.dev"
+          aria-label="Live status — opens InferBridge status page"
+        >
+          <span class="status-dot" aria-hidden="true"></span>All systems operational
+        </a>
+      </div>
       <h1>
         One API for every LLM.<br />
         Global, open-source, and Indian.
@@ -70,6 +79,23 @@ import TextBlock from "./TextBlock.astro";
     border-radius: 4px;
   }
 
+  /* Day 28: status indicator green. #22c55e on --gray-950 (#0c0d0f) is
+   * an 8.4:1 contrast ratio — comfortably clears AA Normal (4.5:1) for
+   * the small status text. Scoped to this component; not promoted to
+   * a global var because nothing else on the marketing surface uses it. */
+  :where(.badges) {
+    --status-green: #22c55e;
+  }
+
+  .badges {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+
   .badge {
     display: inline-flex;
     align-items: center;
@@ -82,7 +108,27 @@ import TextBlock from "./TextBlock.astro";
     font-size: var(--fs-caption);
     font-weight: 500;
     letter-spacing: var(--ls-caption);
-    margin-bottom: 40px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background-color: rgba(34, 197, 94, 0.10);
+    color: var(--status-green);
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    font-weight: 400;
+    letter-spacing: var(--ls-caption);
+    text-decoration: none;
+    transition: background-color var(--transition);
+  }
+
+  .status-badge:hover {
+    background-color: rgba(34, 197, 94, 0.18);
+    text-decoration: none;
   }
 
   .dot {
@@ -90,6 +136,13 @@ import TextBlock from "./TextBlock.astro";
     block-size: 6px;
     border-radius: 50%;
     background-color: var(--accent);
+  }
+
+  .status-dot {
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 50%;
+    background-color: var(--status-green);
   }
 
   h1 {

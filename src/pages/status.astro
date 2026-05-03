@@ -1,0 +1,35 @@
+---
+/**
+ * /status — instant client-side redirect to the UptimeRobot status page.
+ *
+ * Why a meta-refresh and not a 301: Astro builds to static HTML on
+ * Vercel; serving a real 3xx would require a `vercel.json` redirect
+ * rule. Meta-refresh works without any deploy-config changes and
+ * fires before render (`content="0"`), so users perceive a single
+ * navigation hop. Search engines are told to skip the page via the
+ * `noindex` robots meta — we never want this URL competing with the
+ * real status page in SERPs.
+ *
+ * Deliberately does NOT use Layout.astro: pulling in fonts + CSS for
+ * a page that immediately leaves the SPA wastes ~150KB of weight on
+ * a single visit. Inline minimum HTML, ship.
+ */
+const target = "https://uptime.inferbridge.dev";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <meta name="robots" content="noindex,follow" />
+    <link rel="canonical" href={target} />
+    <title>Status — InferBridge</title>
+  </head>
+  <body>
+    <p>
+      Redirecting to <a href={target}>{target}</a>…
+    </p>
+  </body>
+</html>
