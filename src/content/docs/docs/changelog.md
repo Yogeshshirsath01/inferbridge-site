@@ -6,6 +6,19 @@ description: All user-visible changes to InferBridge, by release.
 All user-visible changes to InferBridge (formerly Agni AI) land here.
 Dates are UTC.
 
+## v0.3.5 — 2026-05-03
+
+Hotfix for external uptime probes. No API behaviour change for normal
+clients.
+
+- `/health` and `/live` now accept `HEAD` in addition to `GET`. Most
+  uptime services (UptimeRobot, StatusCake, Pingdom) default to HEAD
+  because it's a lighter probe; the previous `@app.get`-only routes
+  returned 405 with `Allow: GET`, which UptimeRobot read as "down."
+- Starlette serves HEAD by running the GET handler and stripping the
+  body, so the DB + Redis checks still execute and the status code
+  remains accurate. GET callers see no change.
+
 ## v0.3.4 — 2026-05-03
 
 Documentation-only release. No API changes, no behaviour changes.
