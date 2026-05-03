@@ -1,12 +1,19 @@
 ---
 /**
- * Pricing — design doc §8 anti-pattern #2 + copy doc §7.
- * Free tier full visual weight; Pro/Business at opacity 0.65 with
- * "Coming soon" badge instead of CTA.
+ * Pricing — two tiers, Free and Enterprise.
+ *
+ * Earlier drafts had two paid SaaS rungs between them; those were
+ * removed once the actual revenue path became clear (free
+ * developers → custom enterprise contracts, with no SaaS step in
+ * between). Layout still mirrors the original three-card pattern,
+ * just narrowed to two columns.
  */
 import Container from "./Container.astro";
 import Section from "./Section.astro";
 import TextBlock from "./TextBlock.astro";
+
+const enterpriseMailto =
+  "mailto:hello@inferbridge.dev?subject=InferBridge%20Enterprise%20Inquiry";
 ---
 
 <Section background="raised">
@@ -14,45 +21,56 @@ import TextBlock from "./TextBlock.astro";
     <TextBlock align="center">
       <h2>Honest pricing. No markup. Ever.</h2>
       <p class="intro">
-        You pay your providers directly through your own BYOK keys.
-        InferBridge never marks up tokens.
+        Start free. Bring your own keys. Pay nothing until you need
+        enterprise features.
       </p>
     </TextBlock>
 
     <div class="tiers">
-      <article class="tier tier-primary">
-        <p class="tier-badge tier-badge-live">Available now</p>
+      <article class="tier">
         <h3>Free</h3>
-        <p class="price"><span class="amount">&#x20B9;0</span> / month</p>
-        <p class="desc">
-          Unlimited BYOK usage across all 10 providers. Streaming +
-          response caching. DPDP audit export. Rate limits 60 req/min
-          and 100k tokens/min. 30-day log retention. All routing modes,
-          all observability.
-        </p>
-        <a class="tier-cta" href="#waitlist">Get your API key</a>
+        <p class="price"><span class="amount">$0</span> / month</p>
+        <p class="subline">No credit card required.</p>
+
+        <ul class="features" aria-label="Free tier features">
+          <li>10 providers (global, India, EU)</li>
+          <li>Unlimited BYOK</li>
+          <li>All routing tiers (cheap / balanced / premium)</li>
+          <li>Streaming + caching</li>
+          <li>DPDP audit export (signed JSON + PDF)</li>
+          <li>Residency-aware routing</li>
+          <li>Per-request observability (<code>/v1/stats</code>, <code>/v1/logs</code>)</li>
+          <li>Rate limiting: 60 rpm / 100k tpm</li>
+          <li>30-day log retention</li>
+        </ul>
+
+        <a class="tier-cta tier-cta-primary" href="/docs/getting-started/"
+          >Get started free</a
+        >
       </article>
 
-      <article class="tier tier-muted">
-        <p class="tier-badge">Coming soon</p>
-        <h3>Pro</h3>
-        <p class="price"><span class="amount">&#x20B9;1,499</span> / month</p>
-        <p class="desc">
-          Unlimited log retention. Priority support. Custom routing
-          rules. Team seats.
-        </p>
-        <span class="tier-cta disabled" aria-disabled="true">Not available yet</span>
-      </article>
-
-      <article class="tier tier-muted">
-        <p class="tier-badge">Coming soon</p>
-        <h3>Business</h3>
-        <p class="price"><span class="amount">&#x20B9;9,999</span> / month</p>
-        <p class="desc">
-          SLA. Dedicated support. Custom residency policies.
+      <article class="tier tier-enterprise">
+        <h3>Enterprise</h3>
+        <p class="price"><span class="amount">Custom</span></p>
+        <p class="subline">For teams with compliance requirements.</p>
+        <p class="value-prop">
+          Custom residency policies, SLA, dedicated support, and
           GST-compliant invoices.
         </p>
-        <span class="tier-cta disabled" aria-disabled="true">Not available yet</span>
+
+        <ul class="features" aria-label="Enterprise tier features">
+          <li>Everything in Free</li>
+          <li>Custom residency policies</li>
+          <li>SLA guarantee</li>
+          <li>Dedicated support</li>
+          <li>GST-compliant invoices (India)</li>
+          <li>Extended log retention</li>
+          <li>Priority rate limits</li>
+        </ul>
+
+        <a class="tier-cta tier-cta-secondary" href={enterpriseMailto}
+          >Contact us</a
+        >
       </article>
     </div>
   </Container>
@@ -73,47 +91,27 @@ import TextBlock from "./TextBlock.astro";
 
   .tiers {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
+    max-width: 880px;
+    margin-inline: auto;
   }
 
   .tier {
     background-color: var(--gray-800);
     border: 1px solid var(--gray-700);
     border-radius: 12px;
-    padding: 28px 24px;
+    padding: 32px 28px;
     display: flex;
     flex-direction: column;
     gap: 16px;
   }
 
-  .tier-primary {
-    border-color: var(--accent-muted);
-  }
-
-  /* Muted via subtler surface + hidden border, NOT `opacity`. Opacity
-   * composites text colors with the tier bg and drops the effective
-   * contrast below WCAG AA (gray-300 × 0.65 on gray-800 → 3.43:1). */
-  .tier-muted {
-    background-color: var(--gray-900);
-    border-color: var(--gray-800);
-  }
-
-  .tier-muted h3 {
-    color: var(--gray-300);
-  }
-
-  .tier-badge {
-    font-family: var(--font-mono);
-    font-size: var(--fs-caption);
-    font-weight: 500;
-    color: var(--gray-300);
-    letter-spacing: var(--ls-caption);
-    text-transform: uppercase;
-  }
-
-  .tier-badge-live {
-    color: var(--accent-text);
+  /* Subtle accent border draws the eye without raising visual weight
+   * past the Free card. Background stays gray-800 so contrast on body
+   * text is identical to the Free card. */
+  .tier-enterprise {
+    border-color: var(--accent);
   }
 
   .tier h3 {
@@ -124,6 +122,7 @@ import TextBlock from "./TextBlock.astro";
   .price {
     color: var(--gray-300);
     font-size: var(--fs-body-sm);
+    margin: 0;
   }
 
   .amount {
@@ -133,17 +132,59 @@ import TextBlock from "./TextBlock.astro";
     margin-right: 6px;
   }
 
-  .desc {
+  .subline {
+    color: var(--gray-300);
+    font-size: var(--fs-body-sm);
+    margin: 0;
+  }
+
+  .value-prop {
+    color: var(--gray-200);
+    font-size: 1rem;
+    line-height: var(--lh-body-sm);
+    margin: 0;
+  }
+
+  .features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+  }
+
+  .features li {
     color: var(--gray-300);
     font-size: var(--fs-body-sm);
     line-height: var(--lh-body-sm);
-    flex-grow: 1;
+    padding-inline-start: 22px;
+    position: relative;
+  }
+
+  /* Checkmark in --accent so the tick reads as positive without
+   * needing a third color. ::before keeps the bullet out of the DOM
+   * and out of the screen-reader announcement (the surrounding ul
+   * already labels the items as features). */
+  .features li::before {
+    content: "✓";
+    position: absolute;
+    inset-inline-start: 0;
+    color: var(--accent-text);
+    font-weight: 600;
+  }
+
+  .features code {
+    background-color: var(--gray-900);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--accent-text);
+    font-size: 0.92em;
   }
 
   .tier-cta {
     display: inline-block;
-    background-color: var(--accent);
-    color: var(--gray-50);
     padding: 10px 20px;
     border-radius: 8px;
     /* 19px + 700 → AA Large (3:1); gray-50 on accent is 4.04:1. See
@@ -151,23 +192,35 @@ import TextBlock from "./TextBlock.astro";
     font-weight: 700;
     font-size: 1.1875rem;
     text-align: center;
-    transition: background-color var(--transition);
+    transition:
+      background-color var(--transition),
+      color var(--transition),
+      border-color var(--transition);
   }
 
-  .tier-cta:hover {
+  .tier-cta-primary {
+    background-color: var(--accent);
+    color: var(--gray-50);
+  }
+
+  .tier-cta-primary:hover {
     background-color: #6e7bf5;
     text-decoration: none;
   }
 
-  .tier-cta.disabled {
+  /* Outlined secondary: transparent background + accent border/text,
+   * filled on hover. Mirrors the standard "secondary CTA" pattern from
+   * design system docs but kept local so a Hero-CTA tweak doesn't
+   * cascade into the pricing surface. */
+  .tier-cta-secondary {
     background-color: transparent;
-    border: 1px solid var(--gray-700);
-    color: var(--gray-300);
-    cursor: not-allowed;
+    color: var(--accent-text);
+    border: 1px solid var(--accent);
   }
 
-  .tier-cta.disabled:hover {
-    background-color: transparent;
+  .tier-cta-secondary:hover {
+    background-color: var(--accent);
+    color: var(--gray-50);
     text-decoration: none;
   }
 
